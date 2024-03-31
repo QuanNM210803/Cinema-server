@@ -28,7 +28,7 @@ public class BillController {
         }
         return ResponseEntity.ok(billResponses);
     }
-
+    //test thu cai git
     @GetMapping("/{billId}")
     public ResponseEntity<?> getBill(@PathVariable("billId") Long id){
         try{
