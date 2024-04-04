@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -55,7 +56,11 @@ public class BillService implements IBillService{
     public BillResponse getBillResponse(Bill bill) throws SQLException {
         User user=bill.getUser();
         UserResponse userResponse=userService.getUserResponse(user);
-        return new BillResponse(bill.getId(), bill.getCreatedTime(),userResponse);
+        DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatTime= DateTimeFormatter.ofPattern("hh:mm:ss");
+        return new BillResponse(bill.getId()
+                                ,bill.getCreatedTime().format(formatDate)
+                                ,bill.getCreatedTime().format(formatTime)
+                                ,userResponse);
     }
-
 }

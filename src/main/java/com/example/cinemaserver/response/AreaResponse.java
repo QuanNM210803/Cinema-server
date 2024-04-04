@@ -5,11 +5,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class BillResponse {
+@NoArgsConstructor
+public class AreaResponse {
     private Long id;
-    private String createdDate;
-    private String createdTime;
-    private UserResponse userResponse;
+    private String name;
+
 }

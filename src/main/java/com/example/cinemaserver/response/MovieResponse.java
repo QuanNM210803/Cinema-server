@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,6 +17,6 @@ public class MovieResponse {
     private String category;
     private String trailerURL;
     private Integer duration;
-    private LocalDate releaseDate;
+    private String releaseDate;
     private String photo;
 }

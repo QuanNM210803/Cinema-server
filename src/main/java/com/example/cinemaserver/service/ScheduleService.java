@@ -2,7 +2,6 @@ package com.example.cinemaserver.service;
 
 import com.example.cinemaserver.Request.ScheduleRequest;
 import com.example.cinemaserver.model.*;
-import com.example.cinemaserver.repository.MovieRepository;
 import com.example.cinemaserver.repository.ScheduleRepository;
 import com.example.cinemaserver.repository.SeatRepository;
 import com.example.cinemaserver.repository.Seat_ScheduleRepository;
@@ -16,10 +15,8 @@ import org.springframework.stereotype.Service;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -79,7 +76,7 @@ public class ScheduleService implements IScheduleService{
     public void addNewSchedule(Long movieId, Long roomId, ScheduleRequest scheduleRequest) throws Exception {
 
         if(checkScheduleTimeAdd(scheduleRequest.getStartDate(),scheduleRequest.getStartTime()
-                ,movieService.getMovie(movieId),roomService.getRoom(roomId))){
+        ,movieService.getMovie(movieId),roomService.getRoom(roomId))){
             Schedule schedule=new Schedule(scheduleRequest.getStartDate(),scheduleRequest.getStartTime()
                     ,movieService.getMovie(movieId),roomService.getRoom(roomId));
             Schedule theSchedule=scheduleRepository.save(schedule);
@@ -152,7 +149,12 @@ public class ScheduleService implements IScheduleService{
         MovieResponse movieResponse=movieService.getMovieResponse(movie);
         Room room=schedule.getRoom();
         RoomResponse roomResponse=roomService.getRoomResponse(room);
-        return new ScheduleResponse(schedule.getId(),schedule.getStartDate(),schedule.getStartTime()
-                                    ,movieResponse,roomResponse);
+        DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatTime= DateTimeFormatter.ofPattern("hh:mm");
+        return new ScheduleResponse(schedule.getId()
+                                    ,schedule.getStartDate().format(formatDate)
+                                    ,schedule.getStartTime().format(formatTime)
+                                    ,movieResponse
+                                    ,roomResponse);
     }
 }

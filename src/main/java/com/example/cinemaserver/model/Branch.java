@@ -3,6 +3,8 @@ package com.example.cinemaserver.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.sql.Blob;
 
@@ -19,6 +21,9 @@ public class Branch {
     @Lob
     private Blob photo;
     private Boolean status=true;
+    @ManyToOne
+    @JoinColumn(nullable = false,name = "Areaid")
+    private Area area;
     public Branch() {
     }
 

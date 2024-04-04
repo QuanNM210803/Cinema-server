@@ -14,4 +14,5 @@ public class BranchResponse {
     private String introduction;
     private String photo;
     private Boolean status;
+    private AreaResponse areaResponse;
 }

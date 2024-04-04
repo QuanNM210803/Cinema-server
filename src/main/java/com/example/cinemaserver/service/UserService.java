@@ -8,6 +8,7 @@ import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.repository.RoleRepository;
 import com.example.cinemaserver.repository.UserRepositoty;
 import com.example.cinemaserver.response.UserResponse;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 //import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -111,9 +113,10 @@ public class UserService implements IUserService{
 
     @Override
     public UserResponse getUserResponse(User user) throws SQLException {
+        DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return new UserResponse(user.getId(),user.getFullName()
                 ,user.getEmail(),user.getPassword()
-                ,user.getDob(),getAvatar(user)
+                ,user.getDob().format(formatDate),getAvatar(user)
                 ,user.getAge(),user.getRoles());
     }
 

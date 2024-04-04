@@ -8,7 +8,6 @@ import com.example.cinemaserver.repository.SeatRepository;
 import com.example.cinemaserver.response.RoomResponse;
 import com.example.cinemaserver.response.SeatResponse;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;

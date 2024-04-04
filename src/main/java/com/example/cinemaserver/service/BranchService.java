@@ -2,10 +2,12 @@ package com.example.cinemaserver.service;
 
 import com.example.cinemaserver.Exception.ResourceNotFoundException;
 import com.example.cinemaserver.Request.BranchRequest;
+import com.example.cinemaserver.model.Area;
 import com.example.cinemaserver.model.Branch;
 import com.example.cinemaserver.model.Room;
 import com.example.cinemaserver.repository.BranchRepository;
 import com.example.cinemaserver.repository.RoomRepository;
+import com.example.cinemaserver.response.AreaResponse;
 import com.example.cinemaserver.response.BranchResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -29,6 +31,7 @@ import java.util.List;
 public class BranchService implements IBranchService{
     private final BranchRepository branchRepository;
     private final RoomRepository roomRepository;
+    private final AreaService areaService;
     @Override
     public List<Branch> getAll() {
         return branchRepository.findAll();
@@ -41,7 +44,7 @@ public class BranchService implements IBranchService{
 
 
     @Override
-    public void addNewBranch(BranchRequest branchRequest) throws IOException, SQLException {
+    public void addNewBranch(Long areaId, BranchRequest branchRequest) throws IOException, SQLException {
         Branch branch=new Branch();
         branch.setName(branchRequest.getName());
         branch.setAddress(branchRequest.getAddress());
@@ -51,6 +54,8 @@ public class BranchService implements IBranchService{
             Blob blob=new SerialBlob(bytes);
             branch.setPhoto(blob);
         }
+        Area area=areaService.getArea(areaId);
+        branch.setArea(area);
         branchRepository.save(branch);
     }
 
@@ -93,8 +98,13 @@ public class BranchService implements IBranchService{
     }
 
     @Override
-    public List<Branch> getBranchClientByMovieId(Long movieId) {
-        return branchRepository.findBranchClientByMovieId(movieId, LocalDate.now(), LocalTime.now());
+    public List<Branch> getBranchClientByMovieIdAndAreaId(Long movieId,Long areaId) {
+        return branchRepository.findBranchClientByMovieIdAndAreaId(movieId,areaId, LocalDate.now(), LocalTime.now());
+    }
+
+    @Override
+    public List<Branch> getBranchByAreaId(Long areaId) {
+        return branchRepository.findBranchByAreaId(areaId);
     }
 
     public void setStatusRooms(Boolean b,Long branchid){
@@ -114,9 +124,11 @@ public class BranchService implements IBranchService{
 
     @Override
     public BranchResponse getBranchResponse(Branch branch) throws SQLException {
+        Area area=branch.getArea();
+        AreaResponse areaResponse=areaService.getAreaResponse(area);
         return new BranchResponse(branch.getId(),branch.getName()
                                 ,branch.getAddress(),branch.getIntroduction()
-                                ,getBranchPhoto(branch),branch.getStatus());
+                                ,getBranchPhoto(branch),branch.getStatus(),areaResponse);
     }
 
 }

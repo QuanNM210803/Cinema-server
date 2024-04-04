@@ -52,7 +52,7 @@ public class ScheduleController {
             return ResponseEntity.ok("Not found schedule.");
         }
     }
-
+    // lay lich chieu theo rap va phim, dung cho qua trinh dat ve
     @GetMapping("/all/client/BranchAndMovie/{branchId}/{movieId}")
     public ResponseEntity<?> getSchedulesByBranchIdMovieId(@PathVariable("branchId") Long branchId
                                                     ,@PathVariable("movieId") Long movieId){
@@ -69,6 +69,7 @@ public class ScheduleController {
     }
 
     //phuc vu show lich chieu, de dat phong(day khong phai lay ra lich goi y dau nha)
+    // dung cho them lich chieu cua admin
     @GetMapping("/getSchedulesByRoomIdDate")
     public ResponseEntity<?> getSchedulesByRoomIdDate(
             @ModelAttribute ScheduleRoomDateRequest scheduleRoomDateRequest){

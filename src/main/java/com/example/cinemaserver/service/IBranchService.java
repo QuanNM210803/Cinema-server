@@ -18,7 +18,7 @@ public interface IBranchService {
 
     String getBranchPhoto(Branch branch) throws SQLException;
 
-    void addNewBranch(BranchRequest branchRequest) throws IOException, SQLException;
+    void addNewBranch(Long areaId,BranchRequest branchRequest) throws IOException, SQLException;
 
     ResponseEntity<String> deleteBranch(Long id);
 
@@ -28,5 +28,7 @@ public interface IBranchService {
 
     Branch updateBranch(Long id, BranchRequest branchRequest) throws IOException, SQLException;
 
-    List<Branch> getBranchClientByMovieId(Long movieId);
+    List<Branch> getBranchClientByMovieIdAndAreaId(Long movieId,Long areaId);
+
+    List<Branch> getBranchByAreaId(Long areaId);
 }

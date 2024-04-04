@@ -17,6 +17,7 @@ import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -112,11 +113,12 @@ public class MovieService implements IMovieService{
     }
     @Override
     public MovieResponse getMovieResponse(Movie movie) throws SQLException {
+        DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return new MovieResponse(movie.getId(), movie.getName(),
                 movie.getActor(), movie.getDirector(),
                 movie.getDescription(), movie.getLanguage(),
                 movie.getCategory(), movie.getTrailerURL(),
-                movie.getDuration(), movie.getReleaseDate(),
+                movie.getDuration(), movie.getReleaseDate().format(formatDate),
                 getMoviePhoto(movie));
     }
 

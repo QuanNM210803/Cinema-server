@@ -28,11 +28,25 @@ public class BranchController {
         }
         return ResponseEntity.ok(branchResponses);
     }
-
-    @GetMapping("/all/client/movie/{movieId}")
-    public ResponseEntity<?> getBranchClientByMovieId(@PathVariable("movieId") Long movieId){
+    @GetMapping("/all/{areaId}")
+    public ResponseEntity<?> getBranchByAreaId(@PathVariable("areaId") Long areaId){
         try{
-            List<Branch> branches=branchService.getBranchClientByMovieId(movieId);
+            List<Branch> branches=branchService.getBranchByAreaId(areaId);
+            List<BranchResponse> branchResponses=new ArrayList<>();
+            for(Branch branch:branches){
+                branchResponses.add(branchService.getBranchResponse(branch));
+            }
+            return ResponseEntity.ok(branchResponses);
+        }catch (Exception e){
+            return ResponseEntity.ok(e.getMessage());
+        }
+    }
+    // lay rap theo phim va khu vuc, dung cho qua trinh dat ve
+    @GetMapping("/all/client/movieAndArea/{movieId}/{areaId}")
+    public ResponseEntity<?> getBranchClientByMovieIdAndAreaId(@PathVariable("movieId") Long movieId
+                                                        ,@PathVariable("areaId") Long areaId){
+        try{
+            List<Branch> branches=branchService.getBranchClientByMovieIdAndAreaId(movieId,areaId);
             List<BranchResponse> branchResponses=new ArrayList<>();
             for(Branch branch:branches){
                 branchResponses.add(branchService.getBranchResponse(branch));
@@ -53,12 +67,11 @@ public class BranchController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching branch.");
         }
     }
-    @PostMapping("/addNew")
-    public ResponseEntity<String> addNewBranch(
-            @ModelAttribute BranchRequest branchRequest
-            ) {
+    @PostMapping("/addNew/{areaId}")
+    public ResponseEntity<String> addNewBranch(@PathVariable("areaId") Long areaId
+                                            ,@ModelAttribute BranchRequest branchRequest) {
         try{
-            branchService.addNewBranch(branchRequest);
+            branchService.addNewBranch(areaId,branchRequest);
             return ResponseEntity.ok("Add branch successfully.");
         }catch (Exception e){
             throw new RuntimeException("Error");

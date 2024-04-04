@@ -12,8 +12,8 @@ import java.time.LocalTime;
 @AllArgsConstructor
 public class ScheduleResponse {
     private Long id;
-    private LocalDate startDate;
-    private LocalTime startTime;
+    private String startDate;
+    private String startTime;
     private MovieResponse movieResponse;
     private RoomResponse roomResponse;
 }
