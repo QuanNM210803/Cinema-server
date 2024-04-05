@@ -2,8 +2,14 @@ package com.example.cinemaserver.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.apache.commons.io.IOUtils;
 
+import javax.sql.rowset.serial.SerialBlob;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.sql.Blob;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.Collection;
@@ -42,6 +48,16 @@ public class User {
         if(this.getRoles()!=null){
             List<Role> roles=this.getRoles().stream().toList();
             roles.forEach(this::removeRoleFromUser);
+        }
+    }
+
+    public void formatImageToBlob() throws IOException {
+        URL url = new URL("https://st.quantrimang.com/photos/image/2017/04/08/anh-dai-dien-FB-200.jpg");
+        try (InputStream inputStream = url.openStream()) {
+            byte[] imageBytes = IOUtils.toByteArray(inputStream);
+            this.avatar= new SerialBlob(imageBytes);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -70,6 +70,8 @@ public class UserService implements IUserService{
             byte[] bytes= userRequest.getPhoto().getBytes();
             Blob blob=new SerialBlob(bytes);
             user.setAvatar(blob);
+        }else {
+            user.formatImageToBlob();
         }
         Role userRole=roleRepository.findByName("ROLE_USER").get();
         user.setRoles(Collections.singletonList(userRole));

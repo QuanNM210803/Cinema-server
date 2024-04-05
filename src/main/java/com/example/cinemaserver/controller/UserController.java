@@ -1,23 +1,16 @@
 package com.example.cinemaserver.controller;
 
-import com.example.cinemaserver.Exception.UserAlreadyExistsException;
 import com.example.cinemaserver.Request.UserRequest;
-import com.example.cinemaserver.model.Branch;
 import com.example.cinemaserver.model.User;
-import com.example.cinemaserver.response.BranchResponse;
 import com.example.cinemaserver.response.UserResponse;
 import com.example.cinemaserver.service.IUserService;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,8 +34,6 @@ public class UserController {
             User user=userService.getUser(email);
             UserResponse userResponse=userService.getUserResponse(user);
             return ResponseEntity.ok(userResponse);
-//        }catch (UsernameNotFoundException e){
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fectching user");
         }
@@ -53,23 +44,11 @@ public class UserController {
         try{
             userService.deleteUser(email);
             return ResponseEntity.ok("User deleted successfully.");
-//        }catch (UsernameNotFoundException e){
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fectching user");
         }
     }
-    @PostMapping("/addNew")
-    public ResponseEntity<String> addNewUser(@ModelAttribute UserRequest userRequest){
-        try{
-            userService.registerUser(userRequest);
-            return ResponseEntity.ok("Register successfully.");
-        }catch (UserAlreadyExistsException e){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        } catch (SQLException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+
 
     @PutMapping("/update/{userId}")
     public ResponseEntity<UserResponse> updateUser(@PathVariable("userId") Long id
