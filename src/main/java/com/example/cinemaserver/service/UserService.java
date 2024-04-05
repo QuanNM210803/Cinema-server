@@ -6,20 +6,18 @@ import com.example.cinemaserver.Request.UserRequest;
 import com.example.cinemaserver.model.Role;
 import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.repository.RoleRepository;
-import com.example.cinemaserver.repository.UserRepositoty;
+import com.example.cinemaserver.repository.UserRepository;
 import com.example.cinemaserver.response.UserResponse;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 //import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
@@ -28,43 +26,42 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserService implements IUserService{
-    private final UserRepositoty userRepositoty;
+    private final UserRepository userRepository;
     private final RoleRepository roleRepository;
 //    @Bean
 //    public PasswordEncoder passwordEncoder(){
 //        return new BCryptPasswordEncoder();
 //    }
-//    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
     @Override
     public List<User> getUsers() {
-        return userRepositoty.findAll();
+        return userRepository.findAll();
     }
 
     @Override
     public User getUser(String email) {
-        return userRepositoty.findByEmail(email).orElseThrow(()->new UserAlreadyExistsException("User not found"));
+        return userRepository.findByEmail(email).orElseThrow(()->new UserAlreadyExistsException("User not found"));
     }
     public User getUserById(Long id){
-        return userRepositoty.findById(id).orElseThrow(()->new UserAlreadyExistsException("User not found"));
+        return userRepository.findById(id).orElseThrow(()->new UserAlreadyExistsException("User not found"));
     }
 
     @Override
     public void deleteUser(String email) {
         this.removeAllRoleFromUser(email);
-        Optional<User> user=userRepositoty.findByEmail(email);
-        user.ifPresent(theUser -> userRepositoty.deleteById(theUser.getId()));
+        Optional<User> user= userRepository.findByEmail(email);
+        user.ifPresent(theUser -> userRepository.deleteById(theUser.getId()));
     }
 
     @Override
     public void registerUser(UserRequest userRequest) throws IOException, SQLException {
-        if(userRepositoty.existsByEmail(userRequest.getEmail())){
+        if(userRepository.existsByEmail(userRequest.getEmail())){
             throw new UserAlreadyExistsException(userRequest.getEmail()+" already exists");
         }
-        //user.setPassword(passwordEncoder.encode(user.getPassword()));
         User user=new User();
         user.setFullName(userRequest.getFullName());
         user.setEmail(userRequest.getEmail());
-        user.setPassword(userRequest.getPassword());
+        user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user.setDob(userRequest.getDob());
         if(!userRequest.getPhoto().isEmpty()){
             byte[] bytes= userRequest.getPhoto().getBytes();
@@ -75,11 +72,11 @@ public class UserService implements IUserService{
         }
         Role userRole=roleRepository.findByName("ROLE_USER").get();
         user.setRoles(Collections.singletonList(userRole));
-        userRepositoty.save(user);
+        userRepository.save(user);
     }
     @Override
     public User updateUser(Long id, UserRequest userRequest) throws IOException, SQLException {
-        User user=userRepositoty.findById(id).orElseThrow(()->new ResourceNotFoundException("User not found."));
+        User user= userRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("User not found."));
         if(userRequest.getFullName()!=null){
             user.setFullName(userRequest.getFullName());
         }
@@ -87,7 +84,7 @@ public class UserService implements IUserService{
             user.setEmail(userRequest.getEmail());
         }
         if(userRequest.getPassword()!=null){
-            user.setPassword(userRequest.getPassword());
+            user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         }
         if(userRequest.getDob()!=null){
             user.setDob(userRequest.getDob());
@@ -97,13 +94,13 @@ public class UserService implements IUserService{
             Blob blob=new SerialBlob(bytes);
             user.setAvatar(blob);
         }
-        return userRepositoty.save(user);
+        return userRepository.save(user);
     }
 
     public void removeAllRoleFromUser(String email){
-        Optional<User> user=userRepositoty.findByEmail(email);
+        Optional<User> user= userRepository.findByEmail(email);
         user.ifPresent(User::removeAllRoleFromUser);
-        userRepositoty.save(user.get());
+        userRepository.save(user.get());
     }
     @Override
     public String getAvatar(User user) throws SQLException {
