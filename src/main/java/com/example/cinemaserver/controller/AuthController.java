@@ -2,8 +2,10 @@ package com.example.cinemaserver.controller;
 
 import com.example.cinemaserver.Exception.UserAlreadyExistsException;
 import com.example.cinemaserver.Request.LoginRequest;
+import com.example.cinemaserver.Request.OTPVerificationRequest;
 import com.example.cinemaserver.Request.UserRequest;
 import com.example.cinemaserver.response.JwtResponse;
+import com.example.cinemaserver.response.OTPVerificationResponse;
 import com.example.cinemaserver.security.jwt.JwtUtils;
 import com.example.cinemaserver.security.user.CinemaUserDetails;
 import com.example.cinemaserver.service.ForgotPasswordService;
@@ -17,7 +19,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -65,11 +66,27 @@ public class AuthController {
         ));
     }
 
-    @PutMapping("/resetPassword/{email}")
-    public ResponseEntity<?> resetPassword(@PathVariable("email") String email){
+    @PutMapping("/sendOtp/{email}")
+    public ResponseEntity<?> sendOTP(@PathVariable("email") String email){
         try {
-            forgotPasswordService.sendForgotPasswordEmail(email);
-            return ResponseEntity.ok("Check email to regain password");
+            OTPVerificationResponse otpVerification=forgotPasswordService.sendOtpByEmail(email);
+            return ResponseEntity.ok(otpVerification);
+        }catch (Exception e){
+            return ResponseEntity.ok(e.getMessage());
+        }
+    }
+
+    @PutMapping("/otpVerification")
+    public ResponseEntity<?> otpVerification(@ModelAttribute OTPVerificationRequest otpVerificationRequest){
+        Boolean otpVerification=ForgotPasswordService.otpVerification(otpVerificationRequest);
+        return ResponseEntity.ok(otpVerification);
+    }
+
+    @PutMapping("/resetPassword")
+    public ResponseEntity<?> resetPassword(@RequestBody LoginRequest loginRequest){
+        try{
+            forgotPasswordService.resetPassword(loginRequest.getEmail(),loginRequest.getPassword());
+            return ResponseEntity.ok("Reset password successfully!");
         }catch (Exception e){
             return ResponseEntity.ok(e.getMessage());
         }
