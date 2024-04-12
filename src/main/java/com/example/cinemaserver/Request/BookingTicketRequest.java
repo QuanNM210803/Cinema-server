@@ -9,6 +9,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+//phuc vu cho viec dat ve, khach co the dat nhieu ve
 public class BookingTicketRequest {
     private Long userId;
     private List<Long> seatScheduleId;

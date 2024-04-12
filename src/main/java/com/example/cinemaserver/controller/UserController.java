@@ -24,7 +24,7 @@ public class UserController {
         List<User> users=userService.getUsers();
         List<UserResponse> userResponses=new ArrayList<>();
         for(User user:users){
-            userResponses.add(userService.getUserResponse(user));
+            userResponses.add(userService.getUserResponseNonePhoto(user));
         }
         return ResponseEntity.ok(userResponses);
     }

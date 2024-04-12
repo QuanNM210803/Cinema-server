@@ -5,18 +5,18 @@ import com.example.cinemaserver.Request.BranchRequest;
 import com.example.cinemaserver.model.Area;
 import com.example.cinemaserver.model.Branch;
 import com.example.cinemaserver.model.Room;
+import com.example.cinemaserver.model.Ticket;
 import com.example.cinemaserver.repository.BranchRepository;
 import com.example.cinemaserver.repository.RoomRepository;
+import com.example.cinemaserver.repository.TicketRepository;
 import com.example.cinemaserver.response.AreaResponse;
 import com.example.cinemaserver.response.BranchResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
@@ -32,6 +32,7 @@ public class BranchService implements IBranchService{
     private final BranchRepository branchRepository;
     private final RoomRepository roomRepository;
     private final AreaService areaService;
+    private final TicketRepository ticketRepository;
     @Override
     public List<Branch> getAll() {
         return branchRepository.findAll();
@@ -49,7 +50,7 @@ public class BranchService implements IBranchService{
         branch.setName(branchRequest.getName());
         branch.setAddress(branchRequest.getAddress());
         branch.setIntroduction(branchRequest.getIntroduction());
-        if(!branchRequest.getPhoto().isEmpty()){
+        if(!branchRequest.getPhoto().isEmpty() && branchRequest.getPhoto()!=null){
             byte[] bytes=branchRequest.getPhoto().getBytes();
             Blob blob=new SerialBlob(bytes);
             branch.setPhoto(blob);
@@ -73,16 +74,16 @@ public class BranchService implements IBranchService{
     public Branch updateBranch(Long id, BranchRequest branchRequest) throws IOException, SQLException {
         Branch branch=branchRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));;
-        if(branchRequest.getName()!=null){
+        if(!StringUtils.isBlank(branchRequest.getName())){
             branch.setName(branchRequest.getName());
         }
-        if(branchRequest.getAddress()!=null){
+        if(!StringUtils.isBlank(branchRequest.getAddress())){
             branch.setAddress(branchRequest.getAddress());
         }
-        if(branchRequest.getIntroduction()!=null){
+        if(!StringUtils.isBlank(branchRequest.getIntroduction())){
             branch.setIntroduction(branchRequest.getIntroduction());
         }
-        if(!branchRequest.getPhoto().isEmpty()){
+        if(!branchRequest.getPhoto().isEmpty() && branchRequest.getPhoto()!=null){
             byte[] bytes=branchRequest.getPhoto().getBytes();
             Blob blob=new SerialBlob(bytes);
             branch.setPhoto(blob);
@@ -126,9 +127,31 @@ public class BranchService implements IBranchService{
     public BranchResponse getBranchResponse(Branch branch) throws SQLException {
         Area area=branch.getArea();
         AreaResponse areaResponse=areaService.getAreaResponse(area);
-        return new BranchResponse(branch.getId(),branch.getName()
-                                ,branch.getAddress(),branch.getIntroduction()
-                                ,getBranchPhoto(branch),branch.getStatus(),areaResponse);
+        List<Ticket> tickets=ticketRepository.findTicketsByBranchId(branch.getId());
+        return new BranchResponse(branch.getId()
+                                ,branch.getName()
+                                ,branch.getAddress()
+                                ,branch.getIntroduction()
+                                ,tickets.stream().mapToDouble(Ticket::getPrice).sum()
+                                , (long) tickets.size()
+                                ,getBranchPhoto(branch)
+                                ,branch.getStatus()
+                                ,areaResponse);
     }
 
+    @Override
+    public BranchResponse getBranchResponseNonePhoto(Branch branch) throws SQLException {
+        Area area=branch.getArea();
+        AreaResponse areaResponse=areaService.getAreaResponse(area);
+        List<Ticket> tickets=ticketRepository.findTicketsByBranchId(branch.getId());
+        return new BranchResponse(branch.getId()
+                ,branch.getName()
+                ,branch.getAddress()
+                ,branch.getIntroduction()
+                ,tickets.stream().mapToDouble(Ticket::getPrice).sum()
+                , (long) tickets.size()
+                ,null
+                ,branch.getStatus()
+                ,areaResponse);
+    }
 }

@@ -27,7 +27,7 @@ public class RoomController {
         List<Room> rooms=roomService.getAllRoomsByBranchId(branchId);
         List<RoomResponse> roomResponses=new ArrayList<>();
         for(Room room:rooms){
-            roomResponses.add(roomService.getRoomResponse(room));
+            roomResponses.add(roomService.getRoomResponseNonePhoto(room));
         }
         return ResponseEntity.ok(roomResponses);
     }

@@ -5,6 +5,7 @@ import com.example.cinemaserver.model.*;
 import com.example.cinemaserver.repository.ScheduleRepository;
 import com.example.cinemaserver.repository.SeatRepository;
 import com.example.cinemaserver.repository.Seat_ScheduleRepository;
+import com.example.cinemaserver.repository.TicketRepository;
 import com.example.cinemaserver.response.MovieResponse;
 import com.example.cinemaserver.response.RoomResponse;
 import com.example.cinemaserver.response.ScheduleResponse;
@@ -26,6 +27,12 @@ public class ScheduleService implements IScheduleService{
     private final RoomService roomService;
     private final SeatRepository seatRepository;
     private final Seat_ScheduleRepository seat_scheduleRepository;
+    private final TicketRepository ticketRepository;
+
+    @Override
+    public List<Schedule> getSchedules() {
+        return scheduleRepository.findAll();
+    }
     @Override
     public Schedule getScheduleById(Long scheduleId) {
         return scheduleRepository.findById(scheduleId).get();
@@ -146,14 +153,19 @@ public class ScheduleService implements IScheduleService{
     @Override
     public ScheduleResponse getScheduleResponse(Schedule schedule) throws SQLException {
         Movie movie=schedule.getMovie();
-        MovieResponse movieResponse=movieService.getMovieResponse(movie);
+        MovieResponse movieResponse=movieService.getMovieResponseNonePhoto(movie);
         Room room=schedule.getRoom();
-        RoomResponse roomResponse=roomService.getRoomResponse(room);
+        RoomResponse roomResponse=roomService.getRoomResponseNonePhoto(room);
         DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        DateTimeFormatter formatTime= DateTimeFormatter.ofPattern("hh:mm");
+        DateTimeFormatter formatTime= DateTimeFormatter.ofPattern("HH:mm");
+
+        List<Ticket> tickets=ticketRepository.findByScheduleId(schedule.getId());
+
         return new ScheduleResponse(schedule.getId()
                                     ,schedule.getStartDate().format(formatDate)
                                     ,schedule.getStartTime().format(formatTime)
+                                    ,tickets.stream().mapToDouble(Ticket::getPrice).sum()
+                                    , (long) tickets.size()
                                     ,movieResponse
                                     ,roomResponse);
     }

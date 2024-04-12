@@ -6,6 +6,7 @@ import com.example.cinemaserver.Request.UserRequest;
 import com.example.cinemaserver.response.JwtResponse;
 import com.example.cinemaserver.security.jwt.JwtUtils;
 import com.example.cinemaserver.security.user.CinemaUserDetails;
+import com.example.cinemaserver.service.ForgotPasswordService;
 import com.example.cinemaserver.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -29,6 +31,7 @@ public class AuthController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
+    private final ForgotPasswordService forgotPasswordService;
     @PostMapping("/registerUser")
     public ResponseEntity<String> addNewUser(@ModelAttribute UserRequest userRequest){
         try{
@@ -60,5 +63,15 @@ public class AuthController {
                 jwt,
                 roles
         ));
+    }
+
+    @PutMapping("/resetPassword/{email}")
+    public ResponseEntity<?> resetPassword(@PathVariable("email") String email){
+        try {
+            forgotPasswordService.sendForgotPasswordEmail(email);
+            return ResponseEntity.ok("Check email to regain password");
+        }catch (Exception e){
+            return ResponseEntity.ok(e.getMessage());
+        }
     }
 }

@@ -10,6 +10,7 @@ import com.example.cinemaserver.repository.SeatRepository;
 import com.example.cinemaserver.response.BranchResponse;
 import com.example.cinemaserver.response.RoomResponse;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,7 +43,7 @@ public class RoomService implements IRoomService{
     @Override
     public void addNewRoom(RoomRequest roomRequest, Branch branch) throws IOException, SQLException {
         Blob blob=null;
-        if(!roomRequest.getPhoto().isEmpty()){
+        if(!roomRequest.getPhoto().isEmpty() && roomRequest.getPhoto()!=null){
             byte[] bytes=roomRequest.getPhoto().getBytes();
             blob=new SerialBlob(bytes);
         }
@@ -54,7 +55,7 @@ public class RoomService implements IRoomService{
                                                             ,"C1","C2","C3","C4","C5","C6"
                                                             ,"D1","D2","D3","D4","D5","D6"));
         for(String seat_name:seat_names){
-            Double price=0.;
+            double price=0.;
             if(seat_name.contains("A") || seat_name.contains("D")){
                 price=50.;
             }
@@ -81,10 +82,10 @@ public class RoomService implements IRoomService{
     public Room updateRoom(Long roomId, RoomRequest roomRequest) throws IOException, SQLException {
         Room room=roomRepository.findById(roomId)
                 .orElseThrow(()->new ResourceNotFoundException("Room not found"));
-        if(roomRequest.getName()!=null){
+        if(!StringUtils.isBlank(roomRequest.getName())){
             room.setName(roomRequest.getName());
         }
-        if(!roomRequest.getPhoto().isEmpty()){
+        if(!roomRequest.getPhoto().isEmpty() && roomRequest.getPhoto()!=null){
             byte[] bytes=roomRequest.getPhoto().getBytes();
             Blob blob=new SerialBlob(bytes);
             room.setPhoto(blob);
@@ -106,9 +107,22 @@ public class RoomService implements IRoomService{
     @Override
     public RoomResponse getRoomResponse(Room room) throws SQLException {
         Branch branch=branchService.getBranch(room.getBranch().getId());
-        BranchResponse branchResponse=branchService.getBranchResponse(branch);
-        return new RoomResponse(room.getId(),room.getName(),room.getStatus(),getRoomPhoto(room),branchResponse);
+        BranchResponse branchResponse=branchService.getBranchResponseNonePhoto(branch);
+        return new RoomResponse(room.getId()
+                ,room.getName()
+                ,room.getStatus()
+                ,getRoomPhoto(room)
+                ,branchResponse);
     }
 
-
+    @Override
+    public RoomResponse getRoomResponseNonePhoto(Room room) throws SQLException {
+        Branch branch=branchService.getBranch(room.getBranch().getId());
+        BranchResponse branchResponse=branchService.getBranchResponseNonePhoto(branch);
+        return new RoomResponse(room.getId()
+                ,room.getName()
+                ,room.getStatus()
+                ,null
+                ,branchResponse);
+    }
 }

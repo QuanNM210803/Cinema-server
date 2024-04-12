@@ -29,4 +29,6 @@ public interface IScheduleService {
     boolean ordered(Long scheduleId);
 
     List<Schedule> getSchedulesByBranchIdMovieId(Long branchId,Long movieId);
+
+    List<Schedule> getSchedules();
 }

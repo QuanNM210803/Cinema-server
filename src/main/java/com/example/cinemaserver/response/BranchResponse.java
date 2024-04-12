@@ -12,6 +12,8 @@ public class BranchResponse {
     private String name;
     private String address;
     private String introduction;
+    private Double revenue;
+    private Long numberOfTickets;
     private String photo;
     private Boolean status;
     private AreaResponse areaResponse;

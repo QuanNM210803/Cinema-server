@@ -23,27 +23,34 @@ public class MovieController {
     @GetMapping("/all")
     public ResponseEntity<List<MovieResponse>> getAllMovies() throws SQLException {
         List<Movie> movies=movieService.getAllMovies();
-        List<MovieResponse> movieResponses=new ArrayList<>();
-        for(Movie movie:movies){
-            movieResponses.add(movieService.getMovieResponse(movie));
-        }
-        return ResponseEntity.ok(movieResponses);
+        return ResponseEntity.ok(getListMovieResponse(movies));
     }
 
     @GetMapping("/all/client")
     public ResponseEntity<?> getMoviesClient(){
         try{
             List<Movie> movies=movieService.getMoviesClient();
-            List<MovieResponse> movieResponses=new ArrayList<>();
-            for(Movie movie:movies){
-                movieResponses.add(movieService.getMovieResponse(movie));
-            }
-            return ResponseEntity.ok(movieResponses);
+            return ResponseEntity.ok(getListMovieResponse(movies));
         }catch (Exception e){
             return ResponseEntity.ok(e.getMessage());
         }
     }
-
+    @GetMapping("/all/upcoming")
+    public ResponseEntity<?> getMoviesUpcoming(){
+        try{
+            List<Movie> movies=movieService.getMoviesUpcoming();
+            return ResponseEntity.ok(getListMovieResponse(movies));
+        }catch (Exception e){
+            return ResponseEntity.ok(e.getMessage());
+        }
+    }
+    public List<MovieResponse> getListMovieResponse(List<Movie> movies) throws SQLException {
+        List<MovieResponse> movieResponses=new ArrayList<>();
+        for(Movie movie:movies){
+            movieResponses.add(movieService.getMovieResponse(movie));
+        }
+        return movieResponses;
+    }
     @GetMapping("/{movieId}")
     public ResponseEntity<?> getMovieById(@PathVariable("movieId") Long id){
         try{

@@ -31,4 +31,6 @@ public interface IBranchService {
     List<Branch> getBranchClientByMovieIdAndAreaId(Long movieId,Long areaId);
 
     List<Branch> getBranchByAreaId(Long areaId);
+
+    BranchResponse getBranchResponseNonePhoto(Branch branch) throws SQLException;
 }

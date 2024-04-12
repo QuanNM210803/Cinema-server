@@ -28,4 +28,8 @@ public interface IMovieService {
     Movie updateMovie(Long id, MovieRequest movieRequest) throws IOException, SQLException;
 
     List<Movie> getMoviesClient();
+
+    MovieResponse getMovieResponseNonePhoto(Movie movie) throws SQLException;
+
+    List<Movie> getMoviesUpcoming();
 }

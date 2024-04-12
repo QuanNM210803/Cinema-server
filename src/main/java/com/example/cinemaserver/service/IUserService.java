@@ -27,4 +27,6 @@ public interface IUserService {
     User updateUser(Long id, UserRequest userRequest) throws IOException, SQLException;
 
     User getUserById(Long userId);
+
+    UserResponse getUserResponseNonePhoto(User user) throws SQLException;
 }

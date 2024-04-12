@@ -34,7 +34,7 @@ public class BranchController {
             List<Branch> branches=branchService.getBranchByAreaId(areaId);
             List<BranchResponse> branchResponses=new ArrayList<>();
             for(Branch branch:branches){
-                branchResponses.add(branchService.getBranchResponse(branch));
+                branchResponses.add(branchService.getBranchResponseNonePhoto(branch));
             }
             return ResponseEntity.ok(branchResponses);
         }catch (Exception e){
@@ -49,7 +49,7 @@ public class BranchController {
             List<Branch> branches=branchService.getBranchClientByMovieIdAndAreaId(movieId,areaId);
             List<BranchResponse> branchResponses=new ArrayList<>();
             for(Branch branch:branches){
-                branchResponses.add(branchService.getBranchResponse(branch));
+                branchResponses.add(branchService.getBranchResponseNonePhoto(branch));
             }
             return ResponseEntity.ok(branchResponses);
         }catch (Exception e){

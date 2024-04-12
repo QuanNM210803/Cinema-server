@@ -6,6 +6,7 @@ import com.example.cinemaserver.model.Area;
 import com.example.cinemaserver.repository.AreaRepository;
 import com.example.cinemaserver.response.AreaResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -33,7 +34,7 @@ public class AreaService implements IAreaService{
     @Override
     public Area updateArea(Long id, AreaRequest areaRequest) {
         Area area=areaRepository.findById(id).get();
-        if(areaRequest.getName()!=null || !areaRequest.getName().isEmpty()){
+        if(!StringUtils.isBlank(areaRequest.getName())){
             area.setName(areaRequest.getName());
         }
         return areaRepository.save(area);

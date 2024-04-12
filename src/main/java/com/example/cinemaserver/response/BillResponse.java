@@ -11,5 +11,7 @@ public class BillResponse {
     private Long id;
     private String createdDate;
     private String createdTime;
+    private Double payment;
+    private Long numberOfTickets;
     private UserResponse userResponse;
 }

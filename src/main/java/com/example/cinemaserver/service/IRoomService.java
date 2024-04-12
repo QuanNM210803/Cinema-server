@@ -26,4 +26,5 @@ public interface IRoomService {
     Room updateRoom(Long roomId, RoomRequest roomRequest) throws IOException, SQLException;
 
 
+    RoomResponse getRoomResponseNonePhoto(Room room) throws SQLException;
 }

@@ -3,13 +3,16 @@ package com.example.cinemaserver.service;
 import com.example.cinemaserver.Exception.ResourceNotFoundException;
 import com.example.cinemaserver.Request.MovieRequest;
 import com.example.cinemaserver.model.Movie;
+import com.example.cinemaserver.model.Ticket;
 import com.example.cinemaserver.repository.MovieRepository;
+import com.example.cinemaserver.repository.TicketRepository;
 import com.example.cinemaserver.response.MovieResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
@@ -24,6 +27,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MovieService implements IMovieService{
     private final MovieRepository movieRepository;
+    private final TicketRepository ticketRepository;
     @Override
     public List<Movie> getAllMovies() {
         return movieRepository.findAll();
@@ -31,13 +35,13 @@ public class MovieService implements IMovieService{
     @Override
     public Movie getMovie(Long id) {
         return movieRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Branch not found"));
+                .orElseThrow(()->new ResourceNotFoundException("Movie not found"));
     }
 
     @Override
     public void addNewMovie(MovieRequest movieRequest) throws IOException, SQLException {
         Blob blob=null;
-        if(!movieRequest.getPhoto().isEmpty()){
+        if(movieRequest.getPhoto()!=null && !movieRequest.getPhoto().isEmpty()){
             byte[] bytes= movieRequest.getPhoto().getBytes();
             blob=new SerialBlob(bytes);
         }
@@ -63,25 +67,25 @@ public class MovieService implements IMovieService{
     public Movie updateMovie(Long id, MovieRequest movieRequest) throws IOException, SQLException {
         Movie movie=movieRepository.findById(id)
                 .orElseThrow(()->new ResourceNotFoundException("Movie not found."));
-        if(movieRequest.getName()!=null){
+        if(!StringUtils.isBlank(movieRequest.getName())){
             movie.setName(movieRequest.getName());
         }
-        if(movieRequest.getActor()!=null){
+        if(!StringUtils.isBlank(movieRequest.getActor())){
             movie.setActor(movieRequest.getActor());
         }
-        if(movieRequest.getDirector()!=null){
+        if(!StringUtils.isBlank(movieRequest.getDirector())){
             movie.setDirector(movieRequest.getDirector());
         }
-        if(movieRequest.getDescription()!=null){
+        if(!StringUtils.isBlank(movieRequest.getDescription())){
             movie.setDescription(movieRequest.getDescription());
         }
-        if(movieRequest.getLanguage()!=null){
+        if(!StringUtils.isBlank(movieRequest.getLanguage())){
             movie.setLanguage(movieRequest.getLanguage());
         }
-        if(movieRequest.getCategory()!=null){
+        if(!StringUtils.isBlank(movieRequest.getCategory())){
             movie.setCategory(movieRequest.getCategory());
         }
-        if(movieRequest.getTrailerURL()!=null){
+        if(!StringUtils.isBlank(movieRequest.getTrailerURL())){
             movie.setTrailerURL(movieRequest.getTrailerURL());
         }
         if(movieRequest.getDuration()!=null){
@@ -90,7 +94,7 @@ public class MovieService implements IMovieService{
         if(movieRequest.getReleaseDate()!=null){
             movie.setReleaseDate(movieRequest.getReleaseDate());
         }
-        if(!movieRequest.getPhoto().isEmpty()){
+        if(movieRequest.getPhoto()!=null && !movieRequest.getPhoto().isEmpty()){
             byte[] bytes=movieRequest.getPhoto().getBytes();
             Blob blob=new SerialBlob(bytes);
             movie.setPhoto(blob);
@@ -101,6 +105,10 @@ public class MovieService implements IMovieService{
     @Override
     public List<Movie> getMoviesClient() {
         return movieRepository.findMoviesClient(LocalDate.now(), LocalTime.now());
+    }
+    @Override
+    public List<Movie> getMoviesUpcoming() {
+        return movieRepository.findMoviesUpcoming(LocalDate.now());
     }
 
 
@@ -114,12 +122,28 @@ public class MovieService implements IMovieService{
     @Override
     public MovieResponse getMovieResponse(Movie movie) throws SQLException {
         DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        List<Ticket> tickets=ticketRepository.findTicketsByMovieId(movie.getId());
         return new MovieResponse(movie.getId(), movie.getName(),
                 movie.getActor(), movie.getDirector(),
                 movie.getDescription(), movie.getLanguage(),
                 movie.getCategory(), movie.getTrailerURL(),
                 movie.getDuration(), movie.getReleaseDate().format(formatDate),
+                tickets.stream().mapToDouble(Ticket::getPrice).sum(),
+                (long) tickets.size(),
                 getMoviePhoto(movie));
+    }
+    @Override
+    public MovieResponse getMovieResponseNonePhoto(Movie movie) throws SQLException {
+        DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        List<Ticket> tickets=ticketRepository.findTicketsByMovieId(movie.getId());
+        return new MovieResponse(movie.getId(), movie.getName(),
+                movie.getActor(), movie.getDirector(),
+                movie.getDescription(), movie.getLanguage(),
+                movie.getCategory(), movie.getTrailerURL(),
+                movie.getDuration(), movie.getReleaseDate().format(formatDate),
+                tickets.stream().mapToDouble(Ticket::getPrice).sum(),
+                (long) tickets.size(),
+                null);
     }
 
 }

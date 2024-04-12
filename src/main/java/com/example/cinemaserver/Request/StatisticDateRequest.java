@@ -9,9 +9,9 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-//phuc vu cho viec them lich chieu
-public class ScheduleRoomDateRequest {
-    private Long movieId;
-    private Long roomId;
+public class StatisticDateRequest {
     private LocalDate startDate;
+    private LocalDate endDate;
+    private Long movieId;
+    private Long branchId;
 }

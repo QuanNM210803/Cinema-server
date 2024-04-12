@@ -2,9 +2,11 @@ package com.example.cinemaserver.controller;
 
 import com.example.cinemaserver.Request.ScheduleRequest;
 import com.example.cinemaserver.Request.ScheduleRoomDateRequest;
+import com.example.cinemaserver.model.Movie;
 import com.example.cinemaserver.model.Room;
 import com.example.cinemaserver.model.Schedule;
 import com.example.cinemaserver.response.ScheduleResponse;
+import com.example.cinemaserver.service.MovieService;
 import com.example.cinemaserver.service.RoomService;
 import com.example.cinemaserver.service.ScheduleService;
 import lombok.AllArgsConstructor;
@@ -22,6 +24,20 @@ import java.util.List;
 public class ScheduleController {
     private final ScheduleService scheduleService;
     private final RoomService roomService;
+    private final MovieService movieService;
+    @GetMapping("/all")
+    public ResponseEntity<?> getSchedules(){
+        try{
+            List<Schedule> schedules=scheduleService.getSchedules();
+            List<ScheduleResponse> scheduleResponses=new ArrayList<>();
+            for(Schedule schedule:schedules){
+                scheduleResponses.add(scheduleService.getScheduleResponse(schedule));
+            }
+            return ResponseEntity.ok(scheduleResponses);
+        }catch (Exception e){
+            return ResponseEntity.ok(e.getMessage());
+        }
+    }
     @GetMapping("/all/movie/{movieId}")
     public ResponseEntity<List<ScheduleResponse>> getSchedulesByMovieId(@PathVariable("movieId") Long movieId) throws SQLException {
         List<Schedule> schedules=scheduleService.getScheduleByMovieId(movieId);
@@ -105,6 +121,8 @@ public class ScheduleController {
             Schedule schedule=scheduleService.getScheduleById(scheduleId);
             if(schedule.getRoom().getStatus()
                     && LocalDate.now().isBefore(schedule.getStartDate())
+                    && LocalDate.now().isBefore(scheduleRequest.getStartDate())
+                    && schedule.getMovie().getReleaseDate().isBefore(scheduleRequest.getStartDate().plusDays(1))
                     && !scheduleService.ordered(scheduleId)) {
                 Schedule schedule1 = scheduleService.updateSchedule(scheduleId, scheduleRequest);
                 if(schedule1==null){
@@ -119,13 +137,16 @@ public class ScheduleController {
         }
     }
 
-    @PostMapping("/addNew/{movieId}/{roomId}")
+        @PostMapping("/addNew/{movieId}/{roomId}")
     public ResponseEntity<String> addNewSchedule(@PathVariable("movieId") Long movieId
                                                 ,@PathVariable("roomId") Long roomId
                                                 ,@ModelAttribute ScheduleRequest scheduleRequest){
         try{
             Room room=roomService.getRoom(roomId);
-            if(room.getStatus() && LocalDate.now().isBefore(scheduleRequest.getStartDate())){
+            Movie movie=movieService.getMovie(movieId);
+            if(room.getStatus()
+                    && LocalDate.now().isBefore(scheduleRequest.getStartDate())
+                    && movie.getReleaseDate().isBefore(scheduleRequest.getStartDate().plusDays(1))){
                 scheduleService.addNewSchedule(movieId,roomId,scheduleRequest);
                 return ResponseEntity.ok("Add Schedule successfully.");
             }

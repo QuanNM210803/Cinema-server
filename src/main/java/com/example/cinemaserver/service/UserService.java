@@ -10,6 +10,7 @@ import com.example.cinemaserver.repository.UserRepository;
 import com.example.cinemaserver.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 //import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,10 +29,7 @@ import java.util.Optional;
 public class UserService implements IUserService{
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
-//    @Bean
-//    public PasswordEncoder passwordEncoder(){
-//        return new BCryptPasswordEncoder();
-//    }
+
     private final PasswordEncoder passwordEncoder;
     @Override
     public List<User> getUsers() {
@@ -63,7 +61,7 @@ public class UserService implements IUserService{
         user.setEmail(userRequest.getEmail());
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user.setDob(userRequest.getDob());
-        if(!userRequest.getPhoto().isEmpty()){
+        if(!userRequest.getPhoto().isEmpty() && userRequest.getPhoto()!=null){
             byte[] bytes= userRequest.getPhoto().getBytes();
             Blob blob=new SerialBlob(bytes);
             user.setAvatar(blob);
@@ -77,19 +75,19 @@ public class UserService implements IUserService{
     @Override
     public User updateUser(Long id, UserRequest userRequest) throws IOException, SQLException {
         User user= userRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("User not found."));
-        if(userRequest.getFullName()!=null){
+        if(!StringUtils.isBlank(userRequest.getFullName())){
             user.setFullName(userRequest.getFullName());
         }
-        if(userRequest.getEmail()!=null){
+        if(!StringUtils.isBlank(userRequest.getEmail())){
             user.setEmail(userRequest.getEmail());
         }
-        if(userRequest.getPassword()!=null){
+        if(!StringUtils.isBlank(userRequest.getPassword())){
             user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         }
         if(userRequest.getDob()!=null){
             user.setDob(userRequest.getDob());
         }
-        if(!userRequest.getPhoto().isEmpty()){
+        if(!userRequest.getPhoto().isEmpty() && userRequest.getPhoto()!=null){
             byte[] bytes=userRequest.getPhoto().getBytes();
             Blob blob=new SerialBlob(bytes);
             user.setAvatar(blob);
@@ -113,11 +111,26 @@ public class UserService implements IUserService{
     @Override
     public UserResponse getUserResponse(User user) throws SQLException {
         DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        return new UserResponse(user.getId(),user.getFullName()
-                ,user.getEmail(),user.getPassword()
-                ,user.getDob().format(formatDate),getAvatar(user)
-                ,user.getAge(),user.getRoles());
+        return new UserResponse(user.getId()
+                ,user.getFullName()
+                ,user.getEmail()
+                ,user.getPassword()
+                ,user.getDob().format(formatDate)
+                ,getAvatar(user)
+                ,user.getAge()
+                ,user.getRoles());
     }
 
-
+    @Override
+    public UserResponse getUserResponseNonePhoto(User user) throws SQLException {
+        DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        return new UserResponse(user.getId()
+                ,user.getFullName()
+                ,user.getEmail()
+                ,user.getPassword()
+                ,user.getDob().format(formatDate)
+                ,null
+                ,user.getAge()
+                ,user.getRoles());
+    }
 }

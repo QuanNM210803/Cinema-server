@@ -18,5 +18,7 @@ public class MovieResponse {
     private String trailerURL;
     private Integer duration;
     private String releaseDate;
+    private Double revenue;
+    private Long numberOfTickets;
     private String photo;
 }

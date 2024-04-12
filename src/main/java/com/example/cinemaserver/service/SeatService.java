@@ -8,6 +8,7 @@ import com.example.cinemaserver.repository.SeatRepository;
 import com.example.cinemaserver.response.RoomResponse;
 import com.example.cinemaserver.response.SeatResponse;
 import lombok.AllArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import java.sql.SQLException;
@@ -42,7 +43,7 @@ public class SeatService implements ISeatService{
     @Override
     public Seat updateSeat(Long id, SeatRequest seatRequest) {
         Seat seat=seatRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Not found seat."));
-        if(seatRequest.getName()!=null){
+        if(!StringUtils.isBlank(seatRequest.getName())){
             seat.setName(seatRequest.getName());
         }
         if(seatRequest.getPrice()!=null){
@@ -54,7 +55,7 @@ public class SeatService implements ISeatService{
     @Override
     public SeatResponse getSeatResponse(Seat seat) throws SQLException {
         Room room=seat.getRoom();
-        RoomResponse roomResponse=roomService.getRoomResponse(room);
+        RoomResponse roomResponse=roomService.getRoomResponseNonePhoto(room);
         return new SeatResponse(seat.getId(),seat.getName(), seat.getPrice(), roomResponse);
     }
 
