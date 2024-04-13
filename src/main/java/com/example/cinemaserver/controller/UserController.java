@@ -1,6 +1,7 @@
 package com.example.cinemaserver.controller;
 
-import com.example.cinemaserver.Request.UpdateUserRequest;
+import com.example.cinemaserver.Request.AdminUpdateUserRequest;
+import com.example.cinemaserver.Request.UserUpdateUserRequest;
 import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.response.UserResponse;
 import com.example.cinemaserver.service.IUserService;
@@ -50,10 +51,18 @@ public class UserController {
     }
 
 
-    @PutMapping("/update/{userId}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable("userId") Long id
-            , @ModelAttribute UpdateUserRequest updateUserRequest) throws SQLException, IOException {
-        User user=userService.updateUser(id,updateUserRequest);
+    @PutMapping("/update/admin/{userId}")
+    public ResponseEntity<UserResponse> adminUpdateUser(@PathVariable("userId") Long id
+            , @ModelAttribute AdminUpdateUserRequest updateUserRequest) throws SQLException, IOException {
+        User user=userService.adminUpdateUser(id,updateUserRequest);
+        UserResponse userResponse=userService.getUserResponse(user);
+        return ResponseEntity.ok(userResponse);
+    }
+
+    @PutMapping("/update/user/{userId}")
+    public ResponseEntity<UserResponse> userUpdateUser(@PathVariable("userId") Long id
+            , @ModelAttribute UserUpdateUserRequest updateUserRequest) throws SQLException, IOException {
+        User user=userService.userUpdateUserRequest(id,updateUserRequest);
         UserResponse userResponse=userService.getUserResponse(user);
         return ResponseEntity.ok(userResponse);
     }

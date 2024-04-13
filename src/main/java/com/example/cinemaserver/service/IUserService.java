@@ -1,7 +1,8 @@
 package com.example.cinemaserver.service;
 
 import com.example.cinemaserver.Request.RegisterUserRequest;
-import com.example.cinemaserver.Request.UpdateUserRequest;
+import com.example.cinemaserver.Request.AdminUpdateUserRequest;
+import com.example.cinemaserver.Request.UserUpdateUserRequest;
 import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.response.UserResponse;
 
@@ -23,9 +24,11 @@ public interface IUserService {
 
     UserResponse getUserResponse(User user) throws SQLException;
 
-    User updateUser(Long id, UpdateUserRequest updateUserRequest) throws IOException, SQLException;
+    User adminUpdateUser(Long id, AdminUpdateUserRequest updateUserRequest) throws IOException, SQLException;
 
     User getUserById(Long userId);
 
     UserResponse getUserResponseNonePhoto(User user) throws SQLException;
+
+    User userUpdateUserRequest(Long id, UserUpdateUserRequest updateUserRequest) throws IOException, SQLException;
 }

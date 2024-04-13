@@ -3,7 +3,8 @@ package com.example.cinemaserver.service;
 import com.example.cinemaserver.Exception.ResourceNotFoundException;
 import com.example.cinemaserver.Exception.UserAlreadyExistsException;
 import com.example.cinemaserver.Request.RegisterUserRequest;
-import com.example.cinemaserver.Request.UpdateUserRequest;
+import com.example.cinemaserver.Request.AdminUpdateUserRequest;
+import com.example.cinemaserver.Request.UserUpdateUserRequest;
 import com.example.cinemaserver.model.Role;
 import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.repository.RoleRepository;
@@ -60,7 +61,23 @@ public class UserService implements IUserService{
         userRepository.save(user);
     }
     @Override
-    public User updateUser(Long id, UpdateUserRequest updateUserRequest) throws IOException, SQLException {
+    public User userUpdateUserRequest(Long id, UserUpdateUserRequest updateUserRequest) throws IOException, SQLException {
+        User user=userRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("User not found."));
+        if(!StringUtils.isBlank(updateUserRequest.getFullName())){
+            user.setFullName(updateUserRequest.getFullName());
+        }
+        if(updateUserRequest.getDob()!=null){
+            user.setDob(updateUserRequest.getDob());
+        }
+        if(!updateUserRequest.getPhoto().isEmpty() && updateUserRequest.getPhoto()!=null){
+            byte[] bytes=updateUserRequest.getPhoto().getBytes();
+            Blob blob=new SerialBlob(bytes);
+            user.setAvatar(blob);
+        }
+        return userRepository.save(user);
+    }
+    @Override
+    public User adminUpdateUser(Long id, AdminUpdateUserRequest updateUserRequest) throws IOException, SQLException {
         User user= userRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("User not found."));
         if(!StringUtils.isBlank(updateUserRequest.getFullName())){
             user.setFullName(updateUserRequest.getFullName());
