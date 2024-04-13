@@ -4,7 +4,7 @@ import com.example.cinemaserver.Exception.RoleAlreadyExistsException;
 import com.example.cinemaserver.model.Role;
 import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.response.UserResponse;
-import com.example.cinemaserver.service.IRoleSerivce;
+import com.example.cinemaserver.service.IRoleService;
 import com.example.cinemaserver.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequestMapping("/roles")
 @RequiredArgsConstructor
 public class RoleController {
-    private final IRoleSerivce roleService;
+    private final IRoleService roleService;
     private final UserService userService;
     @GetMapping("/all")
     public ResponseEntity<List<Role>> getAllRoles(){

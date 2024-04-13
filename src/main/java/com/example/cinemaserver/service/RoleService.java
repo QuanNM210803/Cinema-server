@@ -8,6 +8,7 @@ import com.example.cinemaserver.repository.RoleRepository;
 import com.example.cinemaserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 //import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class RoleService implements IRoleSerivce{
+public class RoleService implements IRoleService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
     @Override
@@ -54,8 +55,7 @@ public class RoleService implements IRoleSerivce{
             roleRepository.save(role.get());
             return user.get();
         }
-//        throw new UsernameNotFoundException("User not found");
-        throw new UserAlreadyExistsException("User not found");
+        throw new UsernameNotFoundException("User not found");
     }
 
     @Override

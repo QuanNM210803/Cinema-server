@@ -3,7 +3,7 @@ package com.example.cinemaserver.controller;
 import com.example.cinemaserver.Exception.UserAlreadyExistsException;
 import com.example.cinemaserver.Request.LoginRequest;
 import com.example.cinemaserver.Request.OTPVerificationRequest;
-import com.example.cinemaserver.Request.UserRequest;
+import com.example.cinemaserver.Request.RegisterUserRequest;
 import com.example.cinemaserver.response.JwtResponse;
 import com.example.cinemaserver.response.OTPVerificationResponse;
 import com.example.cinemaserver.security.jwt.JwtUtils;
@@ -34,7 +34,7 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final ForgotPasswordService forgotPasswordService;
     @PostMapping("/registerUser")
-    public ResponseEntity<String> addNewUser(@ModelAttribute UserRequest userRequest){
+    public ResponseEntity<String> addNewUser(@ModelAttribute RegisterUserRequest userRequest){
         try{
             userService.registerUser(userRequest);
             return ResponseEntity.ok("Register successfully.");

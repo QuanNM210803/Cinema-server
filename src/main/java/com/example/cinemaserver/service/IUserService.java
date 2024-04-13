@@ -1,13 +1,12 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.Request.UserRequest;
+import com.example.cinemaserver.Request.RegisterUserRequest;
+import com.example.cinemaserver.Request.UpdateUserRequest;
 import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.response.UserResponse;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.List;
 
 public interface IUserService {
@@ -18,13 +17,13 @@ public interface IUserService {
     void deleteUser(String email);
 
 
-    void registerUser(UserRequest userRequest) throws IOException, SQLException;
+    void registerUser(RegisterUserRequest userRequest) throws IOException, SQLException;
 
     String getAvatar(User user) throws SQLException;
 
     UserResponse getUserResponse(User user) throws SQLException;
 
-    User updateUser(Long id, UserRequest userRequest) throws IOException, SQLException;
+    User updateUser(Long id, UpdateUserRequest updateUserRequest) throws IOException, SQLException;
 
     User getUserById(Long userId);
 

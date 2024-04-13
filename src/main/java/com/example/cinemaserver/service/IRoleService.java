@@ -5,7 +5,7 @@ import com.example.cinemaserver.model.User;
 
 import java.util.List;
 
-public interface IRoleSerivce {
+public interface IRoleService {
     List<Role> getRoles();
 
     void addNewRole(Role role);
