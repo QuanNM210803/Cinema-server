@@ -1,14 +1,13 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.Exception.ResourceNotFoundException;
-import com.example.cinemaserver.Request.AreaRequest;
+import com.example.cinemaserver.exception.ResourceNotFoundException;
+import com.example.cinemaserver.request.AreaRequest;
 import com.example.cinemaserver.model.Area;
 import com.example.cinemaserver.repository.AreaRepository;
 import com.example.cinemaserver.response.AreaResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 

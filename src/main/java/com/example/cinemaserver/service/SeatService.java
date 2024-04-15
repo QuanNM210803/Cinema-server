@@ -1,7 +1,7 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.Exception.ResourceNotFoundException;
-import com.example.cinemaserver.Request.SeatRequest;
+import com.example.cinemaserver.exception.ResourceNotFoundException;
+import com.example.cinemaserver.request.SeatRequest;
 import com.example.cinemaserver.model.Room;
 import com.example.cinemaserver.model.Seat;
 import com.example.cinemaserver.repository.SeatRepository;

@@ -1,6 +1,6 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.Request.ScheduleRequest;
+import com.example.cinemaserver.request.ScheduleRequest;
 import com.example.cinemaserver.model.*;
 import com.example.cinemaserver.repository.ScheduleRepository;
 import com.example.cinemaserver.repository.SeatRepository;

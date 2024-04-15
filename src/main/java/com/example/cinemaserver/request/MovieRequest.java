@@ -1,6 +1,5 @@
-package com.example.cinemaserver.Request;
+package com.example.cinemaserver.request;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;

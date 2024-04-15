@@ -1,6 +1,6 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.Request.StatisticDateRequest;
+import com.example.cinemaserver.request.StatisticDateRequest;
 
 import java.sql.SQLException;
 

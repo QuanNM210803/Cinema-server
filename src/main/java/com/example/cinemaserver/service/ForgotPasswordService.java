@@ -1,6 +1,6 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.Request.OTPVerificationRequest;
+import com.example.cinemaserver.request.OTPVerificationRequest;
 import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.repository.UserRepository;
 import com.example.cinemaserver.response.OTPVerificationResponse;

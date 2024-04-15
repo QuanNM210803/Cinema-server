@@ -1,6 +1,6 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.Request.AreaRequest;
+import com.example.cinemaserver.request.AreaRequest;
 import com.example.cinemaserver.model.Area;
 import com.example.cinemaserver.response.AreaResponse;
 

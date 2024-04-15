@@ -1,6 +1,6 @@
 package com.example.cinemaserver.controller;
 
-import com.example.cinemaserver.Request.MovieRequest;
+import com.example.cinemaserver.request.MovieRequest;
 import com.example.cinemaserver.model.Movie;
 import com.example.cinemaserver.response.MovieResponse;
 import com.example.cinemaserver.service.IMovieService;

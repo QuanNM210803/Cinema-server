@@ -1,4 +1,4 @@
-package com.example.cinemaserver.Exception;
+package com.example.cinemaserver.exception;
 
 public class ResourceNotFoundException extends RuntimeException {
     public ResourceNotFoundException(String message) {

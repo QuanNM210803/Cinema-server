@@ -1,4 +1,4 @@
-package com.example.cinemaserver.Request;
+package com.example.cinemaserver.request;
 
 import lombok.Data;
 

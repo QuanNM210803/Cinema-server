@@ -1,7 +1,7 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.Exception.RoleAlreadyExistsException;
-import com.example.cinemaserver.Exception.UserAlreadyExistsException;
+import com.example.cinemaserver.exception.RoleAlreadyExistsException;
+import com.example.cinemaserver.exception.UserAlreadyExistsException;
 import com.example.cinemaserver.model.Role;
 import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.repository.RoleRepository;

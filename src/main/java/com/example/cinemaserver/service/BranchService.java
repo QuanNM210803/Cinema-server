@@ -1,7 +1,7 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.Exception.ResourceNotFoundException;
-import com.example.cinemaserver.Request.BranchRequest;
+import com.example.cinemaserver.exception.ResourceNotFoundException;
+import com.example.cinemaserver.request.BranchRequest;
 import com.example.cinemaserver.model.Area;
 import com.example.cinemaserver.model.Branch;
 import com.example.cinemaserver.model.Room;

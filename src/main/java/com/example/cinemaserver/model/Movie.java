@@ -1,8 +1,6 @@
 package com.example.cinemaserver.model;
 
-import com.example.cinemaserver.Request.MovieRequest;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 import java.sql.Blob;

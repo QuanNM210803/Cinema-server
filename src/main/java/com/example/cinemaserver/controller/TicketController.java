@@ -1,6 +1,6 @@
 package com.example.cinemaserver.controller;
 
-import com.example.cinemaserver.Request.BookingTicketRequest;
+import com.example.cinemaserver.request.BookingTicketRequest;
 import com.example.cinemaserver.model.Bill;
 import com.example.cinemaserver.model.Ticket;
 import com.example.cinemaserver.response.TicketResponse;

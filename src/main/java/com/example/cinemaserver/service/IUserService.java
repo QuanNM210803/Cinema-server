@@ -1,8 +1,8 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.Request.RegisterUserRequest;
-import com.example.cinemaserver.Request.AdminUpdateUserRequest;
-import com.example.cinemaserver.Request.UserUpdateUserRequest;
+import com.example.cinemaserver.request.RegisterUserRequest;
+import com.example.cinemaserver.request.AdminUpdateUserRequest;
+import com.example.cinemaserver.request.UserUpdateUserRequest;
 import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.response.UserResponse;
 

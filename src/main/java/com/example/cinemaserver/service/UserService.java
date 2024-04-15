@@ -1,10 +1,10 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.Exception.ResourceNotFoundException;
-import com.example.cinemaserver.Exception.UserAlreadyExistsException;
-import com.example.cinemaserver.Request.RegisterUserRequest;
-import com.example.cinemaserver.Request.AdminUpdateUserRequest;
-import com.example.cinemaserver.Request.UserUpdateUserRequest;
+import com.example.cinemaserver.exception.ResourceNotFoundException;
+import com.example.cinemaserver.exception.UserAlreadyExistsException;
+import com.example.cinemaserver.request.RegisterUserRequest;
+import com.example.cinemaserver.request.AdminUpdateUserRequest;
+import com.example.cinemaserver.request.UserUpdateUserRequest;
 import com.example.cinemaserver.model.Role;
 import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.repository.RoleRepository;

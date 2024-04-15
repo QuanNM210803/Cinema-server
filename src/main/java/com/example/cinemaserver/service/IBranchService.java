@@ -1,15 +1,12 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.Request.BranchRequest;
+import com.example.cinemaserver.request.BranchRequest;
 import com.example.cinemaserver.model.Branch;
 import com.example.cinemaserver.response.BranchResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 public interface IBranchService {

@@ -1,9 +1,9 @@
 package com.example.cinemaserver.controller;
 
-import com.example.cinemaserver.Exception.UserAlreadyExistsException;
-import com.example.cinemaserver.Request.LoginRequest;
-import com.example.cinemaserver.Request.OTPVerificationRequest;
-import com.example.cinemaserver.Request.RegisterUserRequest;
+import com.example.cinemaserver.exception.UserAlreadyExistsException;
+import com.example.cinemaserver.request.LoginRequest;
+import com.example.cinemaserver.request.OTPVerificationRequest;
+import com.example.cinemaserver.request.RegisterUserRequest;
 import com.example.cinemaserver.response.JwtResponse;
 import com.example.cinemaserver.response.OTPVerificationResponse;
 import com.example.cinemaserver.security.jwt.JwtUtils;

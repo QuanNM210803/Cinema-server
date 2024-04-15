@@ -1,6 +1,6 @@
 package com.example.cinemaserver.controller;
 
-import com.example.cinemaserver.Request.SeatRequest;
+import com.example.cinemaserver.request.SeatRequest;
 import com.example.cinemaserver.model.Room;
 import com.example.cinemaserver.model.Seat;
 import com.example.cinemaserver.response.SeatResponse;

@@ -1,6 +1,6 @@
 package com.example.cinemaserver.controller;
 
-import com.example.cinemaserver.Request.StatisticDateRequest;
+import com.example.cinemaserver.request.StatisticDateRequest;
 import com.example.cinemaserver.service.StatisticService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

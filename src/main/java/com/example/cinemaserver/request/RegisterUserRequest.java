@@ -1,7 +1,6 @@
-package com.example.cinemaserver.Request;
+package com.example.cinemaserver.request;
 
 import lombok.Data;
-import org.springframework.web.multipart.MultipartFile;
 
 
 import java.time.LocalDate;

@@ -1,7 +1,7 @@
 package com.example.cinemaserver.controller;
 
-import com.example.cinemaserver.Request.AdminUpdateUserRequest;
-import com.example.cinemaserver.Request.UserUpdateUserRequest;
+import com.example.cinemaserver.request.AdminUpdateUserRequest;
+import com.example.cinemaserver.request.UserUpdateUserRequest;
 import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.response.UserResponse;
 import com.example.cinemaserver.service.IUserService;

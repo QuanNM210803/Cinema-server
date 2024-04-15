@@ -1,7 +1,7 @@
 package com.example.cinemaserver.controller;
 
-import com.example.cinemaserver.Request.ScheduleRequest;
-import com.example.cinemaserver.Request.ScheduleRoomDateRequest;
+import com.example.cinemaserver.request.ScheduleRequest;
+import com.example.cinemaserver.request.ScheduleRoomDateRequest;
 import com.example.cinemaserver.model.Movie;
 import com.example.cinemaserver.model.Room;
 import com.example.cinemaserver.model.Schedule;

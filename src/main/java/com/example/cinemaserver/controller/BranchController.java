@@ -1,6 +1,6 @@
 package com.example.cinemaserver.controller;
 
-import com.example.cinemaserver.Request.BranchRequest;
+import com.example.cinemaserver.request.BranchRequest;
 import com.example.cinemaserver.model.Branch;
 import com.example.cinemaserver.response.BranchResponse;
 import com.example.cinemaserver.service.IBranchService;
