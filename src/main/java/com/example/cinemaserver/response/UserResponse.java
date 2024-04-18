@@ -18,5 +18,7 @@ public class UserResponse {
     private String dob;
     private String avatar;
     private Integer age;
+    private Long numberOfTickets;
+    private Double totalPayment;
     private Collection<Role> roles;
 }

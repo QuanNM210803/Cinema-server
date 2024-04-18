@@ -14,6 +14,7 @@ public class ScheduleResponse {
     private Long id;
     private String startDate;
     private String startTime;
+    private String endTime;
     private Double revenue;
     private Long numberOfTickets;
     private MovieResponse movieResponse;

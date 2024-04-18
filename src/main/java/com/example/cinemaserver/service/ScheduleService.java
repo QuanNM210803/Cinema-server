@@ -160,10 +160,12 @@ public class ScheduleService implements IScheduleService{
         DateTimeFormatter formatTime= DateTimeFormatter.ofPattern("HH:mm");
 
         List<Ticket> tickets=ticketRepository.findByScheduleId(schedule.getId());
-
+        LocalTime startTime=schedule.getStartTime();
+        LocalTime endTime=startTime.plusMinutes(movie.getDuration());
         return new ScheduleResponse(schedule.getId()
                                     ,schedule.getStartDate().format(formatDate)
-                                    ,schedule.getStartTime().format(formatTime)
+                                    ,startTime.format(formatTime)
+                                    ,endTime.format(formatTime)
                                     ,tickets.stream().mapToDouble(Ticket::getPrice).sum()
                                     , (long) tickets.size()
                                     ,movieResponse

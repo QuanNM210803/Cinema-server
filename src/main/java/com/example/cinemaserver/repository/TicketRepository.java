@@ -16,4 +16,7 @@ public interface TicketRepository extends JpaRepository<Ticket,Long> {
 
     @Query("SELECT t FROM Ticket t WHERE t.schedule.room.branch.id=:branchId")
     List<Ticket> findTicketsByBranchId(Long branchId);
+
+    @Query("SELECT t FROM Ticket t WHERE t.bill.user.id=:userId")
+    List<Ticket> findTicketsByUserId(Long userId);
 }

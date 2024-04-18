@@ -2,6 +2,8 @@ package com.example.cinemaserver.service;
 
 import com.example.cinemaserver.exception.ResourceNotFoundException;
 import com.example.cinemaserver.exception.UserAlreadyExistsException;
+import com.example.cinemaserver.model.Ticket;
+import com.example.cinemaserver.repository.TicketRepository;
 import com.example.cinemaserver.request.RegisterUserRequest;
 import com.example.cinemaserver.request.AdminUpdateUserRequest;
 import com.example.cinemaserver.request.UserUpdateUserRequest;
@@ -31,6 +33,7 @@ public class UserService implements IUserService{
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final IRoleService roleService;
+    private final TicketRepository ticketRepository;
     private final PasswordEncoder passwordEncoder;
     @Override
     public List<User> getUsers() {
@@ -126,6 +129,7 @@ public class UserService implements IUserService{
     @Override
     public UserResponse getUserResponse(User user) throws SQLException {
         DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        List<Ticket> tickets=ticketRepository.findTicketsByUserId(user.getId());
         return new UserResponse(user.getId()
                 ,user.getFullName()
                 ,user.getEmail()
@@ -133,12 +137,15 @@ public class UserService implements IUserService{
                 ,user.getDob().format(formatDate)
                 ,getAvatar(user)
                 ,user.getAge()
+                , (long) tickets.size()
+                ,tickets.stream().mapToDouble(Ticket::getPrice).sum()
                 ,user.getRoles());
     }
 
     @Override
     public UserResponse getUserResponseNonePhoto(User user) throws SQLException {
         DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        List<Ticket> tickets=ticketRepository.findTicketsByUserId(user.getId());
         return new UserResponse(user.getId()
                 ,user.getFullName()
                 ,user.getEmail()
@@ -146,6 +153,8 @@ public class UserService implements IUserService{
                 ,user.getDob().format(formatDate)
                 ,null
                 ,user.getAge()
+                , (long) tickets.size()
+                ,tickets.stream().mapToDouble(Ticket::getPrice).sum()
                 ,user.getRoles());
     }
 }
