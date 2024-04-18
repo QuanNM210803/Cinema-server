@@ -18,7 +18,7 @@ public interface IMovieService {
 
     Movie getMovie(Long id);
 
-    void addNewMovie(MovieRequest movieRequest) throws IOException, SQLException;
+    Movie addNewMovie(MovieRequest movieRequest) throws IOException, SQLException;
 
     ResponseEntity<String> deleteMovieById(Long id);
 

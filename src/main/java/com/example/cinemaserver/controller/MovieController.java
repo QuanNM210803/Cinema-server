@@ -64,8 +64,9 @@ public class MovieController {
     @PostMapping("/addNew")
     public ResponseEntity<?> addNewMovie(@Valid @ModelAttribute MovieRequest movieRequest){
         try{
-            movieService.addNewMovie(movieRequest);
-            return ResponseEntity.ok("Add movie successfully");
+            Movie movie=movieService.addNewMovie(movieRequest);
+            MovieResponse movieResponse=movieService.getMovieResponse(movie);
+            return ResponseEntity.ok(movieResponse);
         }catch (Exception e){
             throw new RuntimeException("Error");
         }

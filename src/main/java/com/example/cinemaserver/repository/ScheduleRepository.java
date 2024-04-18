@@ -20,6 +20,6 @@ public interface ScheduleRepository extends JpaRepository<Schedule,Long> {
     @Query("SELECT s FROM Schedule s WHERE s.movie.id=:movieId " +
             "AND s.room.id IN (SELECT r.id FROM Room r WHERE r.branch.id=:branchId AND r.status=true)" +
             "AND ((s.startDate>:date) OR (s.startDate=:date AND s.startTime>:time))" +
-            "ORDER BY s.startDate DESC , s.startTime DESC ")
+            "ORDER BY s.startDate , s.startTime ")
     List<Schedule> findSchedulesByBranchIdMovieId(Long branchId, Long movieId, LocalDate date, LocalTime time);
 }

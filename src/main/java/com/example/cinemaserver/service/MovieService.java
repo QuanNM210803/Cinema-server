@@ -39,7 +39,7 @@ public class MovieService implements IMovieService{
     }
 
     @Override
-    public void addNewMovie(MovieRequest movieRequest) throws IOException, SQLException {
+    public Movie addNewMovie(MovieRequest movieRequest) throws IOException, SQLException {
         Blob blob=null;
         if(movieRequest.getPhoto()!=null && !movieRequest.getPhoto().isEmpty()){
             byte[] bytes= movieRequest.getPhoto().getBytes();
@@ -49,7 +49,7 @@ public class MovieService implements IMovieService{
         ,movieRequest.getDirector(),movieRequest.getDescription(),movieRequest.getLanguage(),
                 movieRequest.getCategory(),movieRequest.getTrailerURL(),movieRequest.getDuration()
         ,movieRequest.getReleaseDate(),blob);
-        movieRepository.save(movie);
+        return movieRepository.save(movie);
     }
 
     @Override
