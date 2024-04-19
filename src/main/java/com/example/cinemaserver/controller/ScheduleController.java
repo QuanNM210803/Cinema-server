@@ -86,7 +86,7 @@ public class ScheduleController {
 
     //phuc vu show lich chieu, de dat phong(day khong phai lay ra lich goi y dau nha)
     // dung cho them lich chieu cua admin
-    @GetMapping("/getSchedulesByRoomIdDate")
+    @PostMapping("/getSchedulesByRoomIdDate")
     public ResponseEntity<?> getSchedulesByRoomIdDate(
             @ModelAttribute ScheduleRoomDateRequest scheduleRoomDateRequest){
         try{

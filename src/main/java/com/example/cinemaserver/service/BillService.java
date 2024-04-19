@@ -58,7 +58,7 @@ public class BillService implements IBillService{
     @Override
     public BillResponse getBillResponse(Bill bill) throws SQLException {
         User user=bill.getUser();
-        UserResponse userResponse=userService.getUserResponse(user);
+        UserResponse userResponse=userService.getUserResponseNonePhoto(user);
         System.out.println(bill.getCreatedTime());
         DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter formatTime= DateTimeFormatter.ofPattern("HH:mm:ss");

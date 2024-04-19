@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 public class StatisticController {
     private final StatisticService statisticService;
 
-    @GetMapping("/Date_MovieId_BranchId")
+    @PostMapping("/Date_MovieId_BranchId")
     public ResponseEntity<?> getStatisticDates(@ModelAttribute StatisticDateRequest statisticDateRequest){
         try{
             if(statisticDateRequest.getStartDate()!=null && statisticDateRequest.getEndDate()!=null){
