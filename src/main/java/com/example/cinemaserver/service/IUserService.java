@@ -12,12 +12,7 @@ import java.util.List;
 
 public interface IUserService {
     List<User> getUsers();
-
-    User getUser(String email);
-
-    void deleteUser(String email);
-
-
+    void deleteUser(Long userId);
     User registerUser(RegisterUserRequest userRequest) throws IOException, SQLException;
 
     String getAvatar(User user) throws SQLException;

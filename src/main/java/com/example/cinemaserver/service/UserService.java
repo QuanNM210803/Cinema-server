@@ -40,10 +40,6 @@ public class UserService implements IUserService{
         return userRepository.findAll();
     }
 
-    @Override
-    public User getUser(String email) {
-        return userRepository.findByEmail(email).orElseThrow(()->new UserAlreadyExistsException("User not found"));
-    }
     public User getUserById(Long id){
         return userRepository.findById(id).orElseThrow(()->new UserAlreadyExistsException("User not found"));
     }
@@ -96,7 +92,7 @@ public class UserService implements IUserService{
             Blob blob=new SerialBlob(bytes);
             user.setAvatar(blob);
         }
-        this.removeAllRoleFromUser(user.getEmail());
+        this.removeAllRoleFromUser(user.getId());
         List<Long> rolesId=updateUserRequest.getRolesId();
         if(rolesId!=null && !rolesId.isEmpty()){
             rolesId.forEach(roleId->roleService.assignRoleToUser(user.getId(),roleId));
@@ -107,14 +103,14 @@ public class UserService implements IUserService{
         return userRepository.save(user);
     }
     @Override
-    public void deleteUser(String email) {
-        this.removeAllRoleFromUser(email);
-        Optional<User> user= userRepository.findByEmail(email);
+    public void deleteUser(Long userId) {
+        this.removeAllRoleFromUser(userId);
+        Optional<User> user= userRepository.findById(userId);
         user.ifPresent(theUser -> userRepository.deleteById(theUser.getId()));
     }
 
-    public void removeAllRoleFromUser(String email){
-        Optional<User> user= userRepository.findByEmail(email);
+    public void removeAllRoleFromUser(Long userId){
+        Optional<User> user= userRepository.findById(userId);
         user.ifPresent(User::removeAllRoleFromUser);
         userRepository.save(user.get());
     }

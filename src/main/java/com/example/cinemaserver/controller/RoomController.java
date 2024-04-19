@@ -43,14 +43,14 @@ public class RoomController {
         }
     }
     @PostMapping("/addNew/{branchId}")
-    public ResponseEntity<String> addNewRoom(@PathVariable("branchId") Long branchId,
+    public ResponseEntity<?> addNewRoom(@PathVariable("branchId") Long branchId,
                                              @ModelAttribute RoomRequest roomRequest){
         try{
             Branch branch=branchService.getBranch(branchId);
             if(branch.getStatus()){
                 Room room=roomService.addNewRoom(roomRequest,branch);
                 RoomResponse roomResponse=roomService.getRoomResponse(room);
-                return ResponseEntity.ok("Add room successfully.");
+                return ResponseEntity.ok(roomResponse);
             }
             return ResponseEntity.ok("This room is inactive. Please open the branch's active status before adding a room");
         }catch (Exception e){

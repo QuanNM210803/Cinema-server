@@ -29,10 +29,10 @@ public class UserController {
         }
         return ResponseEntity.ok(userResponses);
     }
-    @GetMapping("/{email}")
-    public ResponseEntity<?> getUserByEmail(@PathVariable("email") String email){
+    @GetMapping("/{userId}")
+    public ResponseEntity<?> getUserById(@PathVariable("userId") Long userId){
         try{
-            User user=userService.getUser(email);
+            User user=userService.getUserById(userId);
             UserResponse userResponse=userService.getUserResponse(user);
             return ResponseEntity.ok(userResponse);
         }catch (Exception e){
@@ -40,10 +40,10 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/delete/{email}")
-    public ResponseEntity<String> deleteUser(@PathVariable("email") String email){
+    @DeleteMapping("/delete/{userId}")
+    public ResponseEntity<String> deleteUser(@PathVariable("userId") Long userId){
         try{
-            userService.deleteUser(email);
+            userService.deleteUser(userId);
             return ResponseEntity.ok("User deleted successfully.");
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fectching user");
