@@ -22,7 +22,7 @@ public interface IScheduleService {
 
     Schedule updateSchedule(Long scheduleId, ScheduleRequest scheduleRequest);
 
-    void addNewSchedule(Long movieId, Long roomId, ScheduleRequest scheduleRequest) throws Exception;
+    Schedule addNewSchedule(Long movieId, Long roomId, ScheduleRequest scheduleRequest) throws Exception;
 
     List<Schedule> getSchedulesByRoomIdDate(Long movieId, Long roomId, LocalDate startDate);
 

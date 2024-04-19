@@ -36,12 +36,13 @@ public class SeatController {
     }
 
     @PostMapping("/addNew/{roomId}")
-    public ResponseEntity<String> addNewSeat(@PathVariable("roomId") Long roomId
+    public ResponseEntity<?> addNewSeat(@PathVariable("roomId") Long roomId
                                             , @ModelAttribute SeatRequest seatRequest){
         try{
             Room room=roomService.getRoom(roomId);
-            seatService.addNewSeat(seatRequest,room);
-            return ResponseEntity.ok("Add seat successfully.");
+            Seat seat=seatService.addNewSeat(seatRequest,room);
+            SeatResponse seatResponse=seatService.getSeatResponse(seat);
+            return ResponseEntity.ok(seatResponse);
         }catch (Exception e){
             return ResponseEntity.ok("Error add seat.");
         }

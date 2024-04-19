@@ -15,7 +15,7 @@ public interface ISeatService {
 
     Object getSeatBySeatId(Long id);
 
-    void addNewSeat(SeatRequest seatRequest, Room room);
+    Seat addNewSeat(SeatRequest seatRequest, Room room);
 
     Seat updateSeat(Long id, SeatRequest seatRequest);
 }

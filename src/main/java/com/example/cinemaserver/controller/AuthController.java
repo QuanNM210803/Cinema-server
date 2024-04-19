@@ -1,11 +1,13 @@
 package com.example.cinemaserver.controller;
 
 import com.example.cinemaserver.exception.UserAlreadyExistsException;
+import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.request.LoginRequest;
 import com.example.cinemaserver.request.OTPVerificationRequest;
 import com.example.cinemaserver.request.RegisterUserRequest;
 import com.example.cinemaserver.response.JwtResponse;
 import com.example.cinemaserver.response.OTPVerificationResponse;
+import com.example.cinemaserver.response.UserResponse;
 import com.example.cinemaserver.security.jwt.JwtUtils;
 import com.example.cinemaserver.security.user.CinemaUserDetails;
 import com.example.cinemaserver.service.ForgotPasswordService;
@@ -34,10 +36,11 @@ public class AuthController {
     private final JwtUtils jwtUtils;
     private final ForgotPasswordService forgotPasswordService;
     @PostMapping("/registerUser")
-    public ResponseEntity<String> addNewUser(@ModelAttribute RegisterUserRequest userRequest){
+    public ResponseEntity<?> addNewUser(@ModelAttribute RegisterUserRequest userRequest){
         try{
-            userService.registerUser(userRequest);
-            return ResponseEntity.ok("Register successfully.");
+            User user=userService.registerUser(userRequest);
+            UserResponse userResponse=userService.getUserResponse(user);
+            return ResponseEntity.ok(userResponse);
         }catch (UserAlreadyExistsException e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         } catch (SQLException | IOException e) {

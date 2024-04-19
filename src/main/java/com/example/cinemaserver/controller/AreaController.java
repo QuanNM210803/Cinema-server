@@ -43,8 +43,9 @@ public class AreaController {
     @PostMapping("/addNew")
     public ResponseEntity<?> addNewArea(@ModelAttribute AreaRequest areaRequest){
         try{
-            areaService.addNewArea(areaRequest);
-            return ResponseEntity.ok("Add area successfully.");
+            Area area=areaService.addNewArea(areaRequest);
+            AreaResponse areaResponse=areaService.getAreaResponse(area);
+            return ResponseEntity.ok(areaResponse);
         }catch (Exception e){
             return ResponseEntity.ok(e.getMessage());
         }

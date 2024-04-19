@@ -24,11 +24,10 @@ public class RoleController {
         return ResponseEntity.ok(roleService.getRoles());
     }
     @PostMapping("/addNew")
-    public ResponseEntity<String> addNewRole(@RequestBody Role role){
+    public ResponseEntity<?> addNewRole(@RequestBody Role role){
         try{
-            roleService.addNewRole(role);
-            return ResponseEntity.ok("New role created successfully.");
-
+            Role role1=roleService.addNewRole(role);
+            return ResponseEntity.ok(role1);
         }catch (RoleAlreadyExistsException e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }

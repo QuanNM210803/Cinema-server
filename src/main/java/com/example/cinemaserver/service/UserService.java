@@ -49,7 +49,7 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public void registerUser(RegisterUserRequest userRequest) throws IOException, SQLException {
+    public User registerUser(RegisterUserRequest userRequest) throws IOException, SQLException {
         if(userRepository.existsByEmail(userRequest.getEmail())){
             throw new UserAlreadyExistsException(userRequest.getEmail()+" already exists");
         }
@@ -61,7 +61,7 @@ public class UserService implements IUserService{
         user.formatImageToBlob();
         Role userRole=roleRepository.findByName("ROLE_USER").get();
         user.setRoles(Collections.singletonList(userRole));
-        userRepository.save(user);
+        return userRepository.save(user);
     }
     @Override
     public User userUpdateUserRequest(Long id, UserUpdateUserRequest updateUserRequest) throws IOException, SQLException {

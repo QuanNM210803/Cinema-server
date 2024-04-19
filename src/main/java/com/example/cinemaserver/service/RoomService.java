@@ -41,7 +41,7 @@ public class RoomService implements IRoomService{
     }
 
     @Override
-    public void addNewRoom(RoomRequest roomRequest, Branch branch) throws IOException, SQLException {
+    public Room addNewRoom(RoomRequest roomRequest, Branch branch) throws IOException, SQLException {
         Blob blob=null;
         if(!roomRequest.getPhoto().isEmpty() && roomRequest.getPhoto()!=null){
             byte[] bytes=roomRequest.getPhoto().getBytes();
@@ -64,7 +64,7 @@ public class RoomService implements IRoomService{
             }
             seatRepository.save(new Seat(seat_name,price,thisRoom));
         }
-
+        return thisRoom;
     }
 
     @Override

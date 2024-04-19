@@ -19,7 +19,7 @@ public interface IRoomService {
 
     Room getRoom(Long id);
 
-    void addNewRoom(RoomRequest roomRequest, Branch branch) throws IOException, SQLException;
+    Room addNewRoom(RoomRequest roomRequest, Branch branch) throws IOException, SQLException;
 
     ResponseEntity<String> deleteRoom(Long id);
 

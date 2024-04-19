@@ -65,8 +65,12 @@ public class TicketController {
                 List<Long> seatScheduleIdList=bookingTicketRequest.getSeatScheduleId();
                 if(ticketService.checkBooking(bookingTicketRequest.getSeatScheduleId())){
                     Bill bill=billService.addNewBill(bookingTicketRequest.getUserId());
-                    ticketService.addNewTickets(seatScheduleIdList,bill);
-                    return ResponseEntity.ok("Booking successfully.");
+                    List<Ticket> tickets=ticketService.addNewTickets(seatScheduleIdList,bill);
+                    List<TicketResponse> ticketResponses=new ArrayList<>();
+                    for(Ticket ticket:tickets){
+                        ticketResponses.add(ticketService.getTicketResponse(ticket));
+                    }
+                    return ResponseEntity.ok(ticketResponses);
                 }else {
                     return ResponseEntity.ok("Booking error.");
                 }

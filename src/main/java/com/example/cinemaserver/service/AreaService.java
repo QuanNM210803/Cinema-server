@@ -25,9 +25,9 @@ public class AreaService implements IAreaService{
     }
 
     @Override
-    public void addNewArea(AreaRequest areaRequest) {
+    public Area addNewArea(AreaRequest areaRequest) {
         Area area=new Area(areaRequest.getName());
-        areaRepository.save(area);
+        return areaRepository.save(area);
     }
 
     @Override

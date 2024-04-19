@@ -15,7 +15,7 @@ public interface IBranchService {
 
     String getBranchPhoto(Branch branch) throws SQLException;
 
-    void addNewBranch(Long areaId,BranchRequest branchRequest) throws IOException, SQLException;
+    Branch addNewBranch(Long areaId,BranchRequest branchRequest) throws IOException, SQLException;
 
     ResponseEntity<String> deleteBranch(Long id);
 

@@ -35,9 +35,9 @@ public class SeatService implements ISeatService{
     }
 
     @Override
-    public void addNewSeat(SeatRequest seatRequest, Room room) {
+    public Seat addNewSeat(SeatRequest seatRequest, Room room) {
         Seat seat=new Seat(seatRequest.getName(),seatRequest.getPrice(),room);
-        seatRepository.save(seat);
+        return seatRepository.save(seat);
     }
 
     @Override

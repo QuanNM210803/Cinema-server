@@ -8,7 +8,7 @@ import java.util.List;
 public interface IRoleService {
     List<Role> getRoles();
 
-    void addNewRole(Role role);
+    Role addNewRole(Role role);
 
     void deleteRole(Long roleId);
 

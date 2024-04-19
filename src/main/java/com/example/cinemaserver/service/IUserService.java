@@ -18,7 +18,7 @@ public interface IUserService {
     void deleteUser(String email);
 
 
-    void registerUser(RegisterUserRequest userRequest) throws IOException, SQLException;
+    User registerUser(RegisterUserRequest userRequest) throws IOException, SQLException;
 
     String getAvatar(User user) throws SQLException;
 

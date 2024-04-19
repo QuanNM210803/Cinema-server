@@ -50,7 +50,7 @@ public class TicketService implements ITicketService{
     }
 
     @Override
-    public void addNewTickets(List<Long> seatScheduleIdList, Bill bill) throws Exception {
+    public List<Ticket> addNewTickets(List<Long> seatScheduleIdList, Bill bill) throws Exception {
         List<Ticket> tickets=new ArrayList<>();
         for(Long seatScheduleId:seatScheduleIdList){
             Seat_Schedule seatSchedule=seatScheduleRepository.findById(seatScheduleId).get();
@@ -66,12 +66,13 @@ public class TicketService implements ITicketService{
             }
         }
         if(tickets.size()>0){
-            ticketRepository.saveAll(tickets);
+            List<Ticket> theTickets=ticketRepository.saveAll(tickets);
             for(Ticket ticket:tickets){
                 Seat_Schedule seatSchedule=seatScheduleRepository.findSeat_ScheduleByScheduleIdAndSeatId(ticket.getSchedule().getId(),ticket.getSeat().getId());
                 seatSchedule.setOrdered(true);
                 seatScheduleRepository.save(seatSchedule);
             }
+            return theTickets;
         }else {
             throw new Exception("Booking error.");
         }

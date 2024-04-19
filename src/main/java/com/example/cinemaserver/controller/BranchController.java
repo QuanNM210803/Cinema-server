@@ -68,11 +68,12 @@ public class BranchController {
         }
     }
     @PostMapping("/addNew/{areaId}")
-    public ResponseEntity<String> addNewBranch(@PathVariable("areaId") Long areaId
+    public ResponseEntity<?> addNewBranch(@PathVariable("areaId") Long areaId
                                             ,@ModelAttribute BranchRequest branchRequest) {
         try{
-            branchService.addNewBranch(areaId,branchRequest);
-            return ResponseEntity.ok("Add branch successfully.");
+            Branch branch=branchService.addNewBranch(areaId,branchRequest);
+            BranchResponse branchResponse=branchService.getBranchResponse(branch);
+            return ResponseEntity.ok(branchResponse);
         }catch (Exception e){
             throw new RuntimeException("Error");
         }

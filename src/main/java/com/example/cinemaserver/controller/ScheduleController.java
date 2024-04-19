@@ -137,8 +137,8 @@ public class ScheduleController {
         }
     }
 
-        @PostMapping("/addNew/{movieId}/{roomId}")
-    public ResponseEntity<String> addNewSchedule(@PathVariable("movieId") Long movieId
+    @PostMapping("/addNew/{movieId}/{roomId}")
+    public ResponseEntity<?> addNewSchedule(@PathVariable("movieId") Long movieId
                                                 ,@PathVariable("roomId") Long roomId
                                                 ,@ModelAttribute ScheduleRequest scheduleRequest){
         try{
@@ -147,8 +147,9 @@ public class ScheduleController {
             if(room.getStatus()
                     && LocalDate.now().isBefore(scheduleRequest.getStartDate())
                     && movie.getReleaseDate().isBefore(scheduleRequest.getStartDate().plusDays(1))){
-                scheduleService.addNewSchedule(movieId,roomId,scheduleRequest);
-                return ResponseEntity.ok("Add Schedule successfully.");
+                Schedule schedule=scheduleService.addNewSchedule(movieId,roomId,scheduleRequest);
+                ScheduleResponse scheduleResponse=scheduleService.getScheduleResponse(schedule);
+                return ResponseEntity.ok(scheduleResponse);
             }
             return ResponseEntity.ok("Error: The room is out of service or showtime in the past");
         }catch (Exception e){

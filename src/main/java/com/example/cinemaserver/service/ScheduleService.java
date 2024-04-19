@@ -80,7 +80,7 @@ public class ScheduleService implements IScheduleService{
     }
 
     @Override
-    public void addNewSchedule(Long movieId, Long roomId, ScheduleRequest scheduleRequest) throws Exception {
+    public Schedule addNewSchedule(Long movieId, Long roomId, ScheduleRequest scheduleRequest) throws Exception {
 
         if(checkScheduleTimeAdd(scheduleRequest.getStartDate(),scheduleRequest.getStartTime()
         ,movieService.getMovie(movieId),roomService.getRoom(roomId))){
@@ -93,6 +93,7 @@ public class ScheduleService implements IScheduleService{
                 Seat_Schedule seatSchedule=new Seat_Schedule(false,seat.getPrice(),seat,theSchedule);
                 seat_scheduleRepository.save(seatSchedule);
             }
+            return theSchedule;
         }else{
             throw new Exception("Showtime clash");
         }

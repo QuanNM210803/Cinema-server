@@ -45,7 +45,7 @@ public class BranchService implements IBranchService{
 
 
     @Override
-    public void addNewBranch(Long areaId, BranchRequest branchRequest) throws IOException, SQLException {
+    public Branch addNewBranch(Long areaId, BranchRequest branchRequest) throws IOException, SQLException {
         Branch branch=new Branch();
         branch.setName(branchRequest.getName());
         branch.setAddress(branchRequest.getAddress());
@@ -57,7 +57,7 @@ public class BranchService implements IBranchService{
         }
         Area area=areaService.getArea(areaId);
         branch.setArea(area);
-        branchRepository.save(branch);
+        return branchRepository.save(branch);
     }
 
     @Override

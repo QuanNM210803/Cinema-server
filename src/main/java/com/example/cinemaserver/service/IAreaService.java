@@ -13,7 +13,7 @@ public interface IAreaService {
 
     Area getArea(Long id);
 
-    void addNewArea(AreaRequest areaRequest);
+    Area addNewArea(AreaRequest areaRequest);
 
     Area updateArea(Long id, AreaRequest areaRequest);
 }

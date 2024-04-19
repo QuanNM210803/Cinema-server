@@ -48,7 +48,8 @@ public class RoomController {
         try{
             Branch branch=branchService.getBranch(branchId);
             if(branch.getStatus()){
-                roomService.addNewRoom(roomRequest,branch);
+                Room room=roomService.addNewRoom(roomRequest,branch);
+                RoomResponse roomResponse=roomService.getRoomResponse(room);
                 return ResponseEntity.ok("Add room successfully.");
             }
             return ResponseEntity.ok("This room is inactive. Please open the branch's active status before adding a room");

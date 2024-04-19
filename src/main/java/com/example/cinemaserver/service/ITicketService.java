@@ -16,7 +16,7 @@ public interface ITicketService {
 
     List<Ticket> getTicketsByScheduleId(Long scheduleId);
 
-    void addNewTickets(List<Long> seatScheduleIdList, Bill bill) throws Exception;
+    List<Ticket> addNewTickets(List<Long> seatScheduleIdList, Bill bill) throws Exception;
 
     boolean checkBooking(List<Long> seatScheduleId);
 }
