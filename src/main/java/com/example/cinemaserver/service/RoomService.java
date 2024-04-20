@@ -1,6 +1,8 @@
 package com.example.cinemaserver.service;
 
 import com.example.cinemaserver.exception.ResourceNotFoundException;
+import com.example.cinemaserver.model.Schedule;
+import com.example.cinemaserver.repository.ScheduleRepository;
 import com.example.cinemaserver.request.RoomRequest;
 import com.example.cinemaserver.model.Branch;
 import com.example.cinemaserver.model.Room;
@@ -20,6 +22,8 @@ import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,6 +34,7 @@ public class RoomService implements IRoomService{
     private final RoomRepository roomRepository;
     private final BranchService branchService;
     private final SeatRepository seatRepository;
+    private final ScheduleRepository scheduleRepository;
     @Override
     public List<Room> getAllRoomsByBranchId(Long branchId) {
         return roomRepository.findAllRoomsByBranchId(branchId);
@@ -82,18 +87,23 @@ public class RoomService implements IRoomService{
     public Room updateRoom(Long roomId, RoomRequest roomRequest) throws IOException, SQLException {
         Room room=roomRepository.findById(roomId)
                 .orElseThrow(()->new ResourceNotFoundException("Room not found"));
-        if(!StringUtils.isBlank(roomRequest.getName())){
-            room.setName(roomRequest.getName());
+        List<Schedule> futureSchedules=scheduleRepository.findSchedulesFutureByRoom(roomId, LocalDate.now(), LocalTime.now());
+        if(roomRequest.getStatus() || futureSchedules.size() == 0){
+            if(!StringUtils.isBlank(roomRequest.getName())){
+                room.setName(roomRequest.getName());
+            }
+            if(!roomRequest.getPhoto().isEmpty() && roomRequest.getPhoto()!=null){
+                byte[] bytes=roomRequest.getPhoto().getBytes();
+                Blob blob=new SerialBlob(bytes);
+                room.setPhoto(blob);
+            }
+            if(room.getBranch().getStatus()){
+                room.setStatus(roomRequest.getStatus());
+            }
+            return roomRepository.save(room);
+        }else {
+            throw new RuntimeException("The room still has unscheduled showings.");
         }
-        if(!roomRequest.getPhoto().isEmpty() && roomRequest.getPhoto()!=null){
-            byte[] bytes=roomRequest.getPhoto().getBytes();
-            Blob blob=new SerialBlob(bytes);
-            room.setPhoto(blob);
-        }
-        if(room.getBranch().getStatus()){
-            room.setStatus(roomRequest.getStatus());
-        }
-        return roomRepository.save(room);
     }
 
 

@@ -22,4 +22,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule,Long> {
             "AND ((s.startDate>:date) OR (s.startDate=:date AND s.startTime>:time))" +
             "ORDER BY s.startDate , s.startTime ")
     List<Schedule> findSchedulesByBranchIdMovieId(Long branchId, Long movieId, LocalDate date, LocalTime time);
+    @Query("SELECT s FROM Schedule s WHERE s.room.id=:roomId AND ((s.startDate>:date) OR (s.startDate=:date AND s.startTime>:time))")
+    List<Schedule> findSchedulesFutureByRoom(Long roomId, LocalDate date, LocalTime time);
+    @Query("SELECT s FROM Schedule s WHERE s.room.branch.id=:branchId AND ((s.startDate>:date) OR (s.startDate=:date AND s.startTime>:time))")
+    List<Schedule> findSchedulesFutureByBranch(Long branchId, LocalDate date, LocalTime time);
 }

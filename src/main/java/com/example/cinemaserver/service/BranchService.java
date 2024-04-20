@@ -1,11 +1,9 @@
 package com.example.cinemaserver.service;
 
 import com.example.cinemaserver.exception.ResourceNotFoundException;
+import com.example.cinemaserver.model.*;
+import com.example.cinemaserver.repository.ScheduleRepository;
 import com.example.cinemaserver.request.BranchRequest;
-import com.example.cinemaserver.model.Area;
-import com.example.cinemaserver.model.Branch;
-import com.example.cinemaserver.model.Room;
-import com.example.cinemaserver.model.Ticket;
 import com.example.cinemaserver.repository.BranchRepository;
 import com.example.cinemaserver.repository.RoomRepository;
 import com.example.cinemaserver.repository.TicketRepository;
@@ -33,6 +31,7 @@ public class BranchService implements IBranchService{
     private final RoomRepository roomRepository;
     private final AreaService areaService;
     private final TicketRepository ticketRepository;
+    private final ScheduleRepository scheduleRepository;
     @Override
     public List<Branch> getAll() {
         return branchRepository.findAll();
@@ -74,28 +73,34 @@ public class BranchService implements IBranchService{
     public Branch updateBranch(Long id, BranchRequest branchRequest) throws IOException, SQLException {
         Branch branch=branchRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));;
-        if(!StringUtils.isBlank(branchRequest.getName())){
-            branch.setName(branchRequest.getName());
+        List<Schedule> futureSchedules=scheduleRepository.findSchedulesFutureByBranch(id,LocalDate.now(),LocalTime.now());
+        if(branchRequest.getStatus() || futureSchedules.size()==0){
+            if(!StringUtils.isBlank(branchRequest.getName())){
+                branch.setName(branchRequest.getName());
+            }
+            if(!StringUtils.isBlank(branchRequest.getAddress())){
+                branch.setAddress(branchRequest.getAddress());
+            }
+            if(!StringUtils.isBlank(branchRequest.getIntroduction())){
+                branch.setIntroduction(branchRequest.getIntroduction());
+            }
+            if(!branchRequest.getPhoto().isEmpty() && branchRequest.getPhoto()!=null){
+                byte[] bytes=branchRequest.getPhoto().getBytes();
+                Blob blob=new SerialBlob(bytes);
+                branch.setPhoto(blob);
+            }
+            if(!branchRequest.getStatus() && branch.getStatus()){
+                setStatusRooms(false,branch.getId());
+            }
+            else if(branchRequest.getStatus() && !branch.getStatus()){
+                setStatusRooms(true,branch.getId());
+            }
+            branch.setStatus(branchRequest.getStatus());
+            return branchRepository.save(branch);
+        }else {
+            throw new RuntimeException("The branch still has unscheduled showings.");
         }
-        if(!StringUtils.isBlank(branchRequest.getAddress())){
-            branch.setAddress(branchRequest.getAddress());
-        }
-        if(!StringUtils.isBlank(branchRequest.getIntroduction())){
-            branch.setIntroduction(branchRequest.getIntroduction());
-        }
-        if(!branchRequest.getPhoto().isEmpty() && branchRequest.getPhoto()!=null){
-            byte[] bytes=branchRequest.getPhoto().getBytes();
-            Blob blob=new SerialBlob(bytes);
-            branch.setPhoto(blob);
-        }
-        if(!branchRequest.getStatus() && branch.getStatus()){
-            setStatusRooms(false,branch.getId());
-        }
-        else if(branchRequest.getStatus() && !branch.getStatus()){
-            setStatusRooms(true,branch.getId());
-        }
-        branch.setStatus(branchRequest.getStatus());
-        return branchRepository.save(branch);
+
     }
 
     @Override

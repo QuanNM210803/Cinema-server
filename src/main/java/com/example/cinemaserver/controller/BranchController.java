@@ -85,11 +85,16 @@ public class BranchController {
     }
 
     @PutMapping("/update/{branchId}")
-    public ResponseEntity<BranchResponse> updateBranch(@PathVariable("branchId") Long id
+    public ResponseEntity<?> updateBranch(@PathVariable("branchId") Long id
                                                        ,@ModelAttribute BranchRequest branchRequest
     ) throws SQLException, IOException {
-        Branch branch=branchService.updateBranch(id,branchRequest);
-        BranchResponse branchResponse=branchService.getBranchResponse(branch);
-        return ResponseEntity.ok(branchResponse);
+        try{
+            Branch branch=branchService.updateBranch(id,branchRequest);
+            BranchResponse branchResponse=branchService.getBranchResponse(branch);
+            return ResponseEntity.ok(branchResponse);
+        }catch (Exception e){
+            return ResponseEntity.ok(e.getMessage());
+        }
+
     }
 }
