@@ -20,7 +20,7 @@ public class Schedule {
     private Long id;
     private LocalDate startDate;
     private LocalTime startTime;
-
+    private Long numberOfSeats;
     @ManyToOne
     @JoinColumn(name = "Movieid", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -31,9 +31,10 @@ public class Schedule {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Room room;
 
-    public Schedule(LocalDate startDate, LocalTime startTime, Movie movie, Room room) {
+    public Schedule(LocalDate startDate, LocalTime startTime, Long numberOfSeats, Movie movie, Room room) {
         this.startDate = startDate;
         this.startTime = startTime;
+        this.numberOfSeats = numberOfSeats;
         this.movie = movie;
         this.room = room;
     }

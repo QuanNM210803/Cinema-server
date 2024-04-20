@@ -84,11 +84,11 @@ public class ScheduleService implements IScheduleService{
 
         if(checkScheduleTimeAdd(scheduleRequest.getStartDate(),scheduleRequest.getStartTime()
         ,movieService.getMovie(movieId),roomService.getRoom(roomId))){
+            List<Seat> seats=seatRepository.findSeatsByRoomId(roomId);
             Schedule schedule=new Schedule(scheduleRequest.getStartDate(),scheduleRequest.getStartTime()
+                    ,(long) seats.size()
                     ,movieService.getMovie(movieId),roomService.getRoom(roomId));
             Schedule theSchedule=scheduleRepository.save(schedule);
-            List<Seat> seats=seatRepository.findSeatsByRoomId(roomId);
-            System.out.println(seats);
             for(Seat seat:seats){
                 Seat_Schedule seatSchedule=new Seat_Schedule(false,seat.getPrice(),seat,theSchedule);
                 seat_scheduleRepository.save(seatSchedule);
@@ -169,6 +169,7 @@ public class ScheduleService implements IScheduleService{
                                     ,endTime.format(formatTime)
                                     ,tickets.stream().mapToDouble(Ticket::getPrice).sum()
                                     , (long) tickets.size()
+                                    ,schedule.getNumberOfSeats()
                                     ,movieResponse
                                     ,roomResponse);
     }

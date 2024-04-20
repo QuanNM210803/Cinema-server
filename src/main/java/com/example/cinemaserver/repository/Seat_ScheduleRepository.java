@@ -4,6 +4,7 @@ import com.example.cinemaserver.model.Seat_Schedule;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface Seat_ScheduleRepository extends JpaRepository<Seat_Schedule,Long> {
@@ -13,4 +14,6 @@ public interface Seat_ScheduleRepository extends JpaRepository<Seat_Schedule,Lon
     List<Seat_Schedule> findSeat_ScheduleByScheduleId(Long scheduleId);
     @Query("SELECT ss FROM Seat_Schedule ss WHERE ss.schedule.id=:scheduleId AND ss.seat.id=:seatId")
     Seat_Schedule findSeat_ScheduleByScheduleIdAndSeatId(Long scheduleId, Long seatId);
+    @Query("SELECT ss FROM Seat_Schedule ss WHERE ss.ordered=false AND ss.schedule.startDate<:localDate")
+    List<Seat_Schedule> findSeat_SchedulePast(LocalDate localDate);
 }
