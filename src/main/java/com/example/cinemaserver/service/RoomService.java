@@ -1,6 +1,5 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.exception.ResourceNotFoundException;
 import com.example.cinemaserver.model.Schedule;
 import com.example.cinemaserver.repository.ScheduleRepository;
 import com.example.cinemaserver.request.RoomRequest;
@@ -14,12 +13,11 @@ import com.example.cinemaserver.response.RoomResponse;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
+import java.lang.module.FindException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -37,16 +35,22 @@ public class RoomService implements IRoomService{
     private final ScheduleRepository scheduleRepository;
     @Override
     public List<Room> getAllRoomsByBranchId(Long branchId) {
+        branchService.getBranch(branchId);
         return roomRepository.findAllRoomsByBranchId(branchId);
     }
 
     @Override
     public Room getRoom(Long id) {
-        return roomRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Room not found."));
+        return roomRepository.findById(id).orElseThrow(()->new FindException("Not found room."));
     }
 
     @Override
     public Room addNewRoom(RoomRequest roomRequest, Branch branch) throws IOException, SQLException {
+        List<Room> rooms=roomRepository.findAllRoomsByBranchId(branch.getId());
+        List<String> roomNames=rooms.stream().map(Room::getName).toList();
+        if(roomNames.contains(roomRequest.getName())){
+            throw new RuntimeException(roomRequest.getName()+" already exists.");
+        }
         Blob blob=null;
         if(!roomRequest.getPhoto().isEmpty() && roomRequest.getPhoto()!=null){
             byte[] bytes=roomRequest.getPhoto().getBytes();
@@ -60,7 +64,7 @@ public class RoomService implements IRoomService{
                                                             ,"C1","C2","C3","C4","C5","C6"
                                                             ,"D1","D2","D3","D4","D5","D6"));
         for(String seat_name:seat_names){
-            double price=0.;
+            double price;
             if(seat_name.contains("A") || seat_name.contains("D")){
                 price=50.;
             }
@@ -73,20 +77,19 @@ public class RoomService implements IRoomService{
     }
 
     @Override
-    public ResponseEntity<String> deleteRoom(Long id) {
-        try{
-            Room room=roomRepository.findById(id).get();
-            roomRepository.deleteById(id);
-            return  ResponseEntity.ok("Delete successfully.");
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching room.");
-        }
+    public void deleteRoom(Long id) {
+        this.getRoom(id);
+        roomRepository.deleteById(id);
     }
 
     @Override
     public Room updateRoom(Long roomId, RoomRequest roomRequest) throws IOException, SQLException {
-        Room room=roomRepository.findById(roomId)
-                .orElseThrow(()->new ResourceNotFoundException("Room not found"));
+        Room room=this.getRoom(roomId);
+        List<Room> rooms=roomRepository.findAllRoomsByBranchId(room.getBranch().getId());
+        List<String> roomNames=rooms.stream().map(Room::getName).toList();
+        if(roomNames.contains(roomRequest.getName()) && !roomRequest.getName().equals(room.getName())){
+            throw new RuntimeException(roomRequest.getName() + " already exists.");
+        }
         List<Schedule> futureSchedules=scheduleRepository.findSchedulesFutureByRoom(roomId, LocalDate.now(), LocalTime.now());
         if(roomRequest.getStatus() || futureSchedules.size() == 0){
             if(!StringUtils.isBlank(roomRequest.getName())){
@@ -102,7 +105,7 @@ public class RoomService implements IRoomService{
             }
             return roomRepository.save(room);
         }else {
-            throw new RuntimeException("The room still has unscheduled showings.");
+            throw new RuntimeException("Cannot set inactive status because showtime that haven't been broadcast yet exist.");
         }
     }
 
@@ -126,7 +129,7 @@ public class RoomService implements IRoomService{
     }
 
     @Override
-    public RoomResponse getRoomResponseNonePhoto(Room room) throws SQLException {
+    public RoomResponse getRoomResponseNonePhoto(Room room) {
         Branch branch=branchService.getBranch(room.getBranch().getId());
         BranchResponse branchResponse=branchService.getBranchResponseNonePhoto(branch);
         return new RoomResponse(room.getId()

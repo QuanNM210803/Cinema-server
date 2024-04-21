@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,34 +35,39 @@ public class UserController {
             UserResponse userResponse=userService.getUserResponse(user);
             return ResponseEntity.ok(userResponse);
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fectching user");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-
     @DeleteMapping("/delete/{userId}")
     public ResponseEntity<String> deleteUser(@PathVariable("userId") Long userId){
         try{
             userService.deleteUser(userId);
             return ResponseEntity.ok("User deleted successfully.");
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fectching user");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+    @PutMapping("/update/admin/{userId}")
+    public ResponseEntity<?> adminUpdateUser(@PathVariable("userId") Long id
+                                            , @ModelAttribute AdminUpdateUserRequest updateUserRequest) {
+        try{
+            User user=userService.adminUpdateUser(id,updateUserRequest);
+            UserResponse userResponse=userService.getUserResponse(user);
+            return ResponseEntity.ok(userResponse);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
-
-    @PutMapping("/update/admin/{userId}")
-    public ResponseEntity<UserResponse> adminUpdateUser(@PathVariable("userId") Long id
-            , @ModelAttribute AdminUpdateUserRequest updateUserRequest) throws SQLException, IOException {
-        User user=userService.adminUpdateUser(id,updateUserRequest);
-        UserResponse userResponse=userService.getUserResponse(user);
-        return ResponseEntity.ok(userResponse);
-    }
-
     @PutMapping("/update/user/{userId}")
-    public ResponseEntity<UserResponse> userUpdateUser(@PathVariable("userId") Long id
-            , @ModelAttribute UserUpdateUserRequest updateUserRequest) throws SQLException, IOException {
-        User user=userService.userUpdateUserRequest(id,updateUserRequest);
-        UserResponse userResponse=userService.getUserResponse(user);
-        return ResponseEntity.ok(userResponse);
+    public ResponseEntity<?> userUpdateUser(@PathVariable("userId") Long id
+                                            , @ModelAttribute UserUpdateUserRequest updateUserRequest) {
+        try {
+            User user=userService.userUpdateUser(id,updateUserRequest);
+            UserResponse userResponse=userService.getUserResponse(user);
+            return ResponseEntity.ok(userResponse);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 }

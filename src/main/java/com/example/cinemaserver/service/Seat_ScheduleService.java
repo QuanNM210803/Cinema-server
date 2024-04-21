@@ -1,8 +1,6 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.model.Schedule;
 import com.example.cinemaserver.model.Seat_Schedule;
-import com.example.cinemaserver.repository.ScheduleRepository;
 import com.example.cinemaserver.repository.Seat_ScheduleRepository;
 import com.example.cinemaserver.response.ScheduleResponse;
 import com.example.cinemaserver.response.SeatResponse;
@@ -11,7 +9,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -22,16 +19,13 @@ public class Seat_ScheduleService implements ISeat_ScheduleService{
     private final ScheduleService scheduleService;
     private final Seat_ScheduleRepository seatScheduleRepository;
     @Override
-    public List<Seat_Schedule> getSeat_ScheduleByScheduleId(Long scheduleId) throws Exception {
-        Schedule schedule=scheduleService.getScheduleById(scheduleId);
-        if(schedule.getRoom().getStatus()){
-            return seatScheduleRepository.findSeat_ScheduleByScheduleId(scheduleId);
-        }
-        throw new Exception("Can't get a seat because the screening room is not operating.");
+    public List<Seat_Schedule> getSeat_ScheduleByScheduleId(Long scheduleId) {
+        scheduleService.getScheduleById(scheduleId);
+        return seatScheduleRepository.findSeat_ScheduleByScheduleId(scheduleId);
     }
 
     @Override
-    public Seat_ScheduleResponse getSeat_ScheduleResponse(Seat_Schedule ss) throws SQLException {
+    public Seat_ScheduleResponse getSeat_ScheduleResponse(Seat_Schedule ss) {
         SeatResponse seatResponse=seatService.getSeatResponse(ss.getSeat());
         ScheduleResponse scheduleResponse=scheduleService.getScheduleResponse(ss.getSchedule());
         return new Seat_ScheduleResponse(ss.getId(),ss.getOrdered(),ss.getPrice(),seatResponse,scheduleResponse);

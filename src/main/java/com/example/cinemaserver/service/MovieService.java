@@ -1,6 +1,5 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.exception.ResourceNotFoundException;
 import com.example.cinemaserver.request.MovieRequest;
 import com.example.cinemaserver.model.Movie;
 import com.example.cinemaserver.model.Ticket;
@@ -10,12 +9,12 @@ import com.example.cinemaserver.response.MovieResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
+import java.lang.module.FindException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -34,8 +33,7 @@ public class MovieService implements IMovieService{
     }
     @Override
     public Movie getMovie(Long id) {
-        return movieRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Movie not found"));
+        return movieRepository.findById(id).orElseThrow(()->new FindException("Not found movie."));
     }
 
     @Override
@@ -45,28 +43,29 @@ public class MovieService implements IMovieService{
             byte[] bytes= movieRequest.getPhoto().getBytes();
             blob=new SerialBlob(bytes);
         }
-        Movie movie=new Movie(movieRequest.getName(),movieRequest.getActor()
-        ,movieRequest.getDirector(),movieRequest.getDescription(),movieRequest.getLanguage(),
-                movieRequest.getCategory(),movieRequest.getTrailerURL(),movieRequest.getDuration()
-        ,movieRequest.getReleaseDate(),blob);
+        Movie movie=new Movie(movieRequest.getName()
+                            , movieRequest.getActor()
+                            , movieRequest.getDirector()
+                            , movieRequest.getDescription()
+                            , movieRequest.getLanguage()
+                            , movieRequest.getCategory()
+                            , movieRequest.getTrailerURL()
+                            , movieRequest.getDuration()
+                            , movieRequest.getReleaseDate()
+                            , blob);
         return movieRepository.save(movie);
     }
 
     @Override
-    public ResponseEntity<String> deleteMovieById(Long id) {
-        try{
-            Movie movie=movieRepository.findById(id).get();
-            movieRepository.deleteById(id);
-            return ResponseEntity.ok("Delete successfully.");
-        }catch (Exception e){
-            throw new ResourceNotFoundException("Error fetching movie.");
-        }
+    public void deleteMovieById(Long id) {
+        this.getMovie(id);
+        movieRepository.deleteById(id);
     }
 
     @Override
     public Movie updateMovie(Long id, MovieRequest movieRequest) throws IOException, SQLException {
         Movie movie=movieRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Movie not found."));
+                .orElseThrow(()->new FindException("Not found movie."));
         if(!StringUtils.isBlank(movieRequest.getName())){
             movie.setName(movieRequest.getName());
         }
@@ -133,7 +132,7 @@ public class MovieService implements IMovieService{
                 getMoviePhoto(movie));
     }
     @Override
-    public MovieResponse getMovieResponseNonePhoto(Movie movie) throws SQLException {
+    public MovieResponse getMovieResponseNonePhoto(Movie movie) {
         DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
         List<Ticket> tickets=ticketRepository.findTicketsByMovieId(movie.getId());
         return new MovieResponse(movie.getId(), movie.getName(),

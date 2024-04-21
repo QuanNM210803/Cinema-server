@@ -1,7 +1,6 @@
 package com.example.cinemaserver.service;
 
 import com.example.cinemaserver.model.Bill;
-import com.example.cinemaserver.model.Schedule;
 import com.example.cinemaserver.model.Seat_Schedule;
 import com.example.cinemaserver.model.Ticket;
 import com.example.cinemaserver.repository.Seat_ScheduleRepository;
@@ -13,7 +12,7 @@ import com.example.cinemaserver.response.TicketResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
+import java.lang.module.FindException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -30,69 +29,62 @@ public class TicketService implements ITicketService{
 
     @Override
     public Ticket getTicketById(Long id) {
-        try {
-            return ticketRepository.findById(id).get();
-        }catch (Exception e){
-            throw new RuntimeException("Not found ticket.");
-        }
+        return ticketRepository.findById(id).orElseThrow(()->new FindException("Not found ticket."));
     }
 
     @Override
     public List<Ticket> getTicketsByBillId(Long billId) {
-        Bill bill=billService.getBill(billId);
+        billService.getBill(billId);
         return ticketRepository.findByBillId(billId);
     }
 
     @Override
     public List<Ticket> getTicketsByScheduleId(Long scheduleId) {
-        Schedule schedule=scheduleService.getScheduleById(scheduleId);
+        scheduleService.getScheduleById(scheduleId);
         return ticketRepository.findByScheduleId(scheduleId);
     }
 
     @Override
-    public List<Ticket> addNewTickets(List<Long> seatScheduleIdList, Bill bill) throws Exception {
+    public List<Ticket> addNewTickets(List<Long> seatScheduleIdList, Bill bill) {
         List<Ticket> tickets=new ArrayList<>();
         for(Long seatScheduleId:seatScheduleIdList){
-            Seat_Schedule seatSchedule=seatScheduleRepository.findById(seatScheduleId).get();
-            if(!seatSchedule.getOrdered() && seatSchedule.getSchedule().getRoom().getStatus()
-                && ( LocalDate.now().isBefore(seatSchedule.getSchedule().getStartDate()) ||
-                (LocalDate.now().isEqual(seatSchedule.getSchedule().getStartDate()) && LocalTime.now().isBefore(seatSchedule.getSchedule().getStartTime())) )){
-                Ticket ticket=new Ticket(seatSchedule.getPrice()
-                        ,"https://toanhocbactrungnam.vn/uploads/news/2019_11/1573006985.png"
-                        ,seatSchedule.getSeat()
-                        ,bill
-                        ,seatSchedule.getSchedule());
-                tickets.add(ticket);
-            }
+            Seat_Schedule seatSchedule=seatScheduleRepository.findById(seatScheduleId).orElseThrow(()->new FindException("Not found seat to reserve."));
+            Ticket ticket=new Ticket(seatSchedule.getPrice()
+                    ,"https://toanhocbactrungnam.vn/uploads/news/2019_11/1573006985.png"
+                    ,seatSchedule.getSeat()
+                    ,bill
+                    ,seatSchedule.getSchedule());
+            tickets.add(ticket);
         }
-        if(tickets.size()>0){
-            List<Ticket> theTickets=ticketRepository.saveAll(tickets);
-            for(Ticket ticket:tickets){
-                Seat_Schedule seatSchedule=seatScheduleRepository.findSeat_ScheduleByScheduleIdAndSeatId(ticket.getSchedule().getId(),ticket.getSeat().getId());
-                seatSchedule.setOrdered(true);
-                seatScheduleRepository.save(seatSchedule);
-            }
-            return theTickets;
-        }else {
-            throw new Exception("Booking error.");
+        List<Ticket> theTickets=ticketRepository.saveAll(tickets);
+        for(Ticket ticket:tickets){
+            Seat_Schedule seatSchedule=seatScheduleRepository.findSeat_ScheduleByScheduleIdAndSeatId(ticket.getSchedule().getId(),ticket.getSeat().getId());
+            seatSchedule.setOrdered(true);
+            seatScheduleRepository.save(seatSchedule);
         }
+        return theTickets;
     }
 
     @Override
     public boolean checkBooking(List<Long> seatScheduleIdList) {
         for(Long seatScheduleId:seatScheduleIdList){
-            Seat_Schedule seatSchedule=seatScheduleRepository.findById(seatScheduleId).get();
-            if(!seatSchedule.getOrdered() && seatSchedule.getSchedule().getRoom().getStatus()
-                && ( LocalDate.now().isBefore(seatSchedule.getSchedule().getStartDate()) ||
-                    ( LocalDate.now().isEqual(seatSchedule.getSchedule().getStartDate()) && LocalTime.now().isBefore(seatSchedule.getSchedule().getStartTime()) ))){
-                return true;
+            Seat_Schedule seatSchedule=seatScheduleRepository.findById(seatScheduleId).orElseThrow(()->new FindException("Not found seat to reserve."));
+            if(seatSchedule.getOrdered()){
+                throw new RuntimeException("The seat has been booked.");
+            }
+            if(!seatSchedule.getSchedule().getRoom().getStatus()){
+                throw new RuntimeException("Can't book tickets because screening room is not operating.");
+            }
+            if( !( LocalDate.now().isBefore(seatSchedule.getSchedule().getStartDate()) ||
+                    ( LocalDate.now().isEqual(seatSchedule.getSchedule().getStartDate()) && LocalTime.now().isBefore(seatSchedule.getSchedule().getStartTime())))){
+                throw new RuntimeException("Can't book tickets because schedule has been shown.");
             }
         }
-        return false;
+        return true;
     }
 
     @Override
-    public TicketResponse getTicketResponse(Ticket ticket) throws SQLException {
+    public TicketResponse getTicketResponse(Ticket ticket) {
         ScheduleResponse scheduleResponse=scheduleService.getScheduleResponse(ticket.getSchedule());
         SeatResponse seatResponse=seatService.getSeatResponse(ticket.getSeat());
         BillResponse billResponse=billService.getBillResponse(ticket.getBill());

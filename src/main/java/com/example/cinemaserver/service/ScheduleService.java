@@ -10,14 +10,14 @@ import com.example.cinemaserver.response.MovieResponse;
 import com.example.cinemaserver.response.RoomResponse;
 import com.example.cinemaserver.response.ScheduleResponse;
 import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
+import java.lang.module.FindException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -25,6 +25,7 @@ public class ScheduleService implements IScheduleService{
     private final ScheduleRepository scheduleRepository;
     private final MovieService movieService;
     private final RoomService roomService;
+    private final BranchService branchService;
     private final SeatRepository seatRepository;
     private final Seat_ScheduleRepository seat_scheduleRepository;
     private final TicketRepository ticketRepository;
@@ -35,38 +36,43 @@ public class ScheduleService implements IScheduleService{
     }
     @Override
     public Schedule getScheduleById(Long scheduleId) {
-        return scheduleRepository.findById(scheduleId).get();
+        return scheduleRepository.findById(scheduleId).orElseThrow(()->new FindException("Not found schedule."));
     }
 
     @Override
     public List<Schedule> getScheduleByMovieId(Long movieId) {
+        movieService.getMovie(movieId);
         return scheduleRepository.findSchedulesByMovieId(movieId);
     }
 
     @Override
     public List<Schedule> getScheduleByRoomId(Long roomId) {
+        roomService.getRoom(roomId);
         return scheduleRepository.findSchedulesByRoomId(roomId);
     }
     @Override
-    public List<Schedule> getSchedulesByRoomIdDate(Long movieId, Long roomId, LocalDate startDate) {
+    public List<Schedule> getSchedulesByRoomIdDate(Long roomId, LocalDate startDate) {
+        roomService.getRoom(roomId);
         List<Schedule> schedules=scheduleRepository.findSchedulesByRoomIdDate(roomId,startDate);
         return schedules;
     }
 
 
     @Override
-    public ResponseEntity<String> deleteSchedule(Long id) {
-        try{
-            scheduleRepository.deleteById(id);
-            return ResponseEntity.ok("Delete schedule successfully.");
-        }catch (Exception e){
-            return ResponseEntity.ok("Error delete schedule.");
+    public void deleteSchedule(Long id) {
+        Schedule schedule=this.getScheduleById(id);
+        if(!LocalDate.now().isBefore(schedule.getStartDate())){
+            throw new RuntimeException("Can't be deleted because the show has already been shown.");
         }
+        if(this.ordered(id)){
+            throw new RuntimeException("Can't be deleted because tickets have already been booked.");
+        }
+        scheduleRepository.deleteById(id);
     }
 
     @Override
-    public Schedule updateSchedule(Long scheduleId, ScheduleRequest scheduleRequest) {
-        Schedule schedule=scheduleRepository.findById(scheduleId).get();
+    public Schedule updateSchedule(Long scheduleId, ScheduleRequest scheduleRequest) throws Exception {
+        Schedule schedule=this.getScheduleById(scheduleId);
         if(checkScheduleTimeUpdate(schedule,scheduleRequest)){
             if(scheduleRequest.getStartDate()!=null){
                 schedule.setStartDate(scheduleRequest.getStartDate());
@@ -76,7 +82,7 @@ public class ScheduleService implements IScheduleService{
             }
             return scheduleRepository.save(schedule);
         }
-        return null;
+        throw new Exception("Showtime clash.");
     }
 
     @Override
@@ -94,23 +100,20 @@ public class ScheduleService implements IScheduleService{
                 seat_scheduleRepository.save(seatSchedule);
             }
             return theSchedule;
-        }else{
-            throw new Exception("Showtime clash");
         }
+        throw new Exception("Showtime clash.");
     }
 
     @Override
     public boolean ordered(Long scheduleId) {
         List<Boolean> ordered=seat_scheduleRepository.findOrderedByScheduleId(scheduleId);
-        System.out.println(ordered);
-        if(ordered.contains(true)){
-            return true;
-        }
-        return false;
+        return ordered.contains(true);
     }
 
     @Override
     public List<Schedule> getSchedulesByBranchIdMovieId(Long branchId,Long movieId) {
+        branchService.getBranch(branchId);
+        movieService.getMovie(movieId);
         return scheduleRepository.findSchedulesByBranchIdMovieId(branchId,movieId,LocalDate.now(),LocalTime.now());
     }
 
@@ -138,7 +141,7 @@ public class ScheduleService implements IScheduleService{
             int duration=schedule.getMovie().getDuration();
             LocalTime newEndTime=newStartTime.plusMinutes(duration);
             for(Schedule sche:schedules){
-                if(sche.getId()!=schedule.getId()){
+                if(!Objects.equals(sche.getId(), schedule.getId())){
                     LocalTime oldStartTime=sche.getStartTime();
                     LocalTime oldEndTime=oldStartTime.plusMinutes(sche.getMovie().getDuration());
                     if(!(newEndTime.isBefore(oldStartTime) || oldEndTime.isBefore(newStartTime))){
@@ -152,7 +155,7 @@ public class ScheduleService implements IScheduleService{
     }
 
     @Override
-    public ScheduleResponse getScheduleResponse(Schedule schedule) throws SQLException {
+    public ScheduleResponse getScheduleResponse(Schedule schedule) {
         Movie movie=schedule.getMovie();
         MovieResponse movieResponse=movieService.getMovieResponseNonePhoto(movie);
         Room room=schedule.getRoom();

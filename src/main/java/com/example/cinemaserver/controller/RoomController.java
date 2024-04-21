@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.lang.module.FindException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +24,17 @@ public class RoomController {
     private final RoomService roomService;
     private final BranchService branchService;
     @GetMapping("/all/{branchId}")
-    public ResponseEntity<List<RoomResponse>> getAllRoomsByBranchId(@PathVariable("branchId") Long branchId) throws SQLException {
-        List<Room> rooms=roomService.getAllRoomsByBranchId(branchId);
-        List<RoomResponse> roomResponses=new ArrayList<>();
-        for(Room room:rooms){
-            roomResponses.add(roomService.getRoomResponseNonePhoto(room));
+    public ResponseEntity<?> getAllRoomsByBranchId(@PathVariable("branchId") Long branchId) {
+        try {
+            List<Room> rooms=roomService.getAllRoomsByBranchId(branchId);
+            List<RoomResponse> roomResponses=new ArrayList<>();
+            for(Room room:rooms){
+                roomResponses.add(roomService.getRoomResponseNonePhoto(room));
+            }
+            return ResponseEntity.ok(roomResponses);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-        return ResponseEntity.ok(roomResponses);
     }
 
     @GetMapping("/{roomId}")
@@ -39,7 +44,7 @@ public class RoomController {
             RoomResponse roomResponse=roomService.getRoomResponse(room);
             return ResponseEntity.ok(roomResponse);
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching Room.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
     @PostMapping("/addNew/{branchId}")
@@ -52,16 +57,22 @@ public class RoomController {
                 RoomResponse roomResponse=roomService.getRoomResponse(room);
                 return ResponseEntity.ok(roomResponse);
             }
-            return ResponseEntity.ok("This room is inactive. Please open the branch's active status before adding a room");
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("This branch is inactive. Please open the branch's active status before adding a room.");
         }catch (Exception e){
-            return ResponseEntity.ok("Error");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     //viet de day thoi, chu dung xoa room, thay vao do hay update status ve false
     @DeleteMapping("/delete/{roomId}")
     public ResponseEntity<String> deleteRoom(@PathVariable("roomId") Long id){
-        return roomService.deleteRoom(id);
+        try {
+            roomService.deleteRoom(id);
+            return ResponseEntity.ok("Delete successfully.");
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @PutMapping("/update/{roomId}")
@@ -71,8 +82,10 @@ public class RoomController {
             Room room=roomService.updateRoom(roomId,roomRequest);
             RoomResponse roomResponse=roomService.getRoomResponse(room);
             return ResponseEntity.ok(roomResponse);
-        }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+        }catch (FindException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (RuntimeException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 }

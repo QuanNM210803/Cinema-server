@@ -4,6 +4,7 @@ import com.example.cinemaserver.model.Seat_Schedule;
 import com.example.cinemaserver.response.Seat_ScheduleResponse;
 import com.example.cinemaserver.service.Seat_ScheduleService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +29,7 @@ public class Seat_ScheduleController {
             }
             return ResponseEntity.ok(seatScheduleResponses);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }

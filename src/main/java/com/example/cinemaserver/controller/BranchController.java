@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.lang.module.FindException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class BranchController {
             }
             return ResponseEntity.ok(branchResponses);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
     // lay rap theo phim va khu vuc, dung cho qua trinh dat ve
@@ -53,7 +54,7 @@ public class BranchController {
             }
             return ResponseEntity.ok(branchResponses);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -64,7 +65,7 @@ public class BranchController {
             BranchResponse branchResponse=branchService.getBranchResponse(branch);
             return ResponseEntity.ok(branchResponse);
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching branch.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
     @PostMapping("/addNew/{areaId}")
@@ -75,13 +76,18 @@ public class BranchController {
             BranchResponse branchResponse=branchService.getBranchResponse(branch);
             return ResponseEntity.ok(branchResponse);
         }catch (Exception e){
-            throw new RuntimeException("Error");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
     //viet de day thoi, chu dung xoa branch, thay vao do hay update status ve false
     @DeleteMapping("/delete/{branchId}")
-    public ResponseEntity<String> deleteBranch(@PathVariable("branchId") Long id){
-        return branchService.deleteBranch(id);
+    public ResponseEntity<?> deleteBranch(@PathVariable("branchId") Long id){
+        try{
+            branchService.deleteBranch(id);
+            return ResponseEntity.ok("Delete successfully.");
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @PutMapping("/update/{branchId}")
@@ -92,9 +98,10 @@ public class BranchController {
             Branch branch=branchService.updateBranch(id,branchRequest);
             BranchResponse branchResponse=branchService.getBranchResponse(branch);
             return ResponseEntity.ok(branchResponse);
-        }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+        }catch (FindException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (RuntimeException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
-
     }
 }

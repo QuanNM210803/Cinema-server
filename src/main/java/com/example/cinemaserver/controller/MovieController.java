@@ -25,24 +25,15 @@ public class MovieController {
         List<Movie> movies=movieService.getAllMovies();
         return ResponseEntity.ok(getListMovieResponse(movies));
     }
-
     @GetMapping("/all/client")
-    public ResponseEntity<?> getMoviesClient(){
-        try{
-            List<Movie> movies=movieService.getMoviesClient();
-            return ResponseEntity.ok(getListMovieResponse(movies));
-        }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
-        }
+    public ResponseEntity<?> getMoviesClient() throws SQLException {
+        List<Movie> movies=movieService.getMoviesClient();
+        return ResponseEntity.ok(getListMovieResponse(movies));
     }
     @GetMapping("/all/upcoming")
-    public ResponseEntity<?> getMoviesUpcoming(){
-        try{
+    public ResponseEntity<?> getMoviesUpcoming() throws SQLException {
             List<Movie> movies=movieService.getMoviesUpcoming();
             return ResponseEntity.ok(getListMovieResponse(movies));
-        }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
-        }
     }
     public List<MovieResponse> getListMovieResponse(List<Movie> movies) throws SQLException {
         List<MovieResponse> movieResponses=new ArrayList<>();
@@ -58,32 +49,37 @@ public class MovieController {
             MovieResponse movieResponse=movieService.getMovieResponse(movie);
             return ResponseEntity.ok(movieResponse);
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching movie.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found movie.");
         }
     }
     @PostMapping("/addNew")
-    public ResponseEntity<?> addNewMovie(@Valid @ModelAttribute MovieRequest movieRequest){
-        try{
-            Movie movie=movieService.addNewMovie(movieRequest);
-            MovieResponse movieResponse=movieService.getMovieResponse(movie);
-            return ResponseEntity.ok(movieResponse);
-        }catch (Exception e){
-            throw new RuntimeException("Error");
-        }
+    public ResponseEntity<?> addNewMovie(@Valid @ModelAttribute MovieRequest movieRequest) throws SQLException, IOException {
+        Movie movie=movieService.addNewMovie(movieRequest);
+        MovieResponse movieResponse=movieService.getMovieResponse(movie);
+        return ResponseEntity.ok(movieResponse);
     }
 
 //    viet de day thoi, chu dung ko dc xoa movie, neu xoa se anh huong cac ban khac
 //    trog khi cung ko nhat thiet phai xoa
     @DeleteMapping("/delete/{movieId}")
-    public ResponseEntity<String> deleteMovie(@PathVariable("movieId") Long id){
-        return movieService.deleteMovieById(id);
+    public ResponseEntity<?> deleteMovie(@PathVariable("movieId") Long id){
+        try {
+            movieService.deleteMovieById(id);
+            return ResponseEntity.ok("Delete successfully.");
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @PutMapping("/update/{movieId}")
-    public ResponseEntity<MovieResponse> updateMovie(@PathVariable("movieId") Long id
-                                                    ,@ModelAttribute MovieRequest movieRequest) throws SQLException, IOException {
-        Movie movie=movieService.updateMovie(id,movieRequest);
-        MovieResponse movieResponse=movieService.getMovieResponse(movie);
-        return ResponseEntity.ok(movieResponse);
+    public ResponseEntity<?> updateMovie(@PathVariable("movieId") Long id
+                                                    ,@ModelAttribute MovieRequest movieRequest) {
+        try{
+            Movie movie=movieService.updateMovie(id,movieRequest);
+            MovieResponse movieResponse=movieService.getMovieResponse(movie);
+            return ResponseEntity.ok(movieResponse);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 }

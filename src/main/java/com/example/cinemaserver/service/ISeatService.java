@@ -13,7 +13,7 @@ public interface ISeatService {
 
     SeatResponse getSeatResponse(Seat seat) throws SQLException;
 
-    Object getSeatBySeatId(Long id);
+    Seat getSeatBySeatId(Long id);
 
     Seat addNewSeat(SeatRequest seatRequest, Room room);
 

@@ -1,6 +1,5 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.exception.ResourceNotFoundException;
 import com.example.cinemaserver.exception.UserAlreadyExistsException;
 import com.example.cinemaserver.model.Ticket;
 import com.example.cinemaserver.repository.TicketRepository;
@@ -15,11 +14,13 @@ import com.example.cinemaserver.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
+import java.lang.module.FindException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
@@ -41,13 +42,13 @@ public class UserService implements IUserService{
     }
 
     public User getUserById(Long id){
-        return userRepository.findById(id).orElseThrow(()->new UserAlreadyExistsException("User not found"));
+        return userRepository.findById(id).orElseThrow(()->new UsernameNotFoundException("Not found user."));
     }
 
     @Override
     public User registerUser(RegisterUserRequest userRequest) throws IOException, SQLException {
         if(userRepository.existsByEmail(userRequest.getEmail())){
-            throw new UserAlreadyExistsException(userRequest.getEmail()+" already exists");
+            throw new UserAlreadyExistsException(userRequest.getEmail()+" already exists.");
         }
         User user=new User();
         user.setFullName(userRequest.getFullName());
@@ -55,13 +56,13 @@ public class UserService implements IUserService{
         user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         user.setDob(userRequest.getDob());
         user.formatImageToBlob();
-        Role userRole=roleRepository.findByName("ROLE_USER").get();
+        Role userRole=roleRepository.findByName("ROLE_USER").orElseThrow(()->new FindException("Not found role."));
         user.setRoles(Collections.singletonList(userRole));
         return userRepository.save(user);
     }
     @Override
-    public User userUpdateUserRequest(Long id, UserUpdateUserRequest updateUserRequest) throws IOException, SQLException {
-        User user=userRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("User not found."));
+    public User userUpdateUser(Long id, UserUpdateUserRequest updateUserRequest) throws IOException, SQLException {
+        User user=this.getUserById(id);
         if(!StringUtils.isBlank(updateUserRequest.getFullName())){
             user.setFullName(updateUserRequest.getFullName());
         }
@@ -77,7 +78,7 @@ public class UserService implements IUserService{
     }
     @Override
     public User adminUpdateUser(Long id, AdminUpdateUserRequest updateUserRequest) throws IOException, SQLException {
-        User user= userRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("User not found."));
+        User user= this.getUserById(id);
         if(!StringUtils.isBlank(updateUserRequest.getFullName())){
             user.setFullName(updateUserRequest.getFullName());
         }
@@ -97,7 +98,7 @@ public class UserService implements IUserService{
         if(rolesId!=null && !rolesId.isEmpty()){
             rolesId.forEach(roleId->roleService.assignRoleToUser(user.getId(),roleId));
         }else{
-            Role userRole=roleRepository.findByName("ROLE_USER").get();
+            Role userRole=roleRepository.findByName("ROLE_USER").orElseThrow(()->new FindException("Not found role."));
             user.getRoles().add(userRole);
         }
         return userRepository.save(user);
@@ -110,9 +111,9 @@ public class UserService implements IUserService{
     }
 
     public void removeAllRoleFromUser(Long userId){
-        Optional<User> user= userRepository.findById(userId);
-        user.ifPresent(User::removeAllRoleFromUser);
-        userRepository.save(user.get());
+        User user= this.getUserById(userId);
+        user.removeAllRoleFromUser();
+        userRepository.save(user);
     }
     @Override
     public String getAvatar(User user) throws SQLException {
@@ -139,7 +140,7 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public UserResponse getUserResponseNonePhoto(User user) throws SQLException {
+    public UserResponse getUserResponseNonePhoto(User user) {
         DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
         List<Ticket> tickets=ticketRepository.findTicketsByUserId(user.getId());
         return new UserResponse(user.getId()

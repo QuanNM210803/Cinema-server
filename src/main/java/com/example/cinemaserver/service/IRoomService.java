@@ -4,7 +4,6 @@ import com.example.cinemaserver.request.RoomRequest;
 import com.example.cinemaserver.model.Branch;
 import com.example.cinemaserver.model.Room;
 import com.example.cinemaserver.response.RoomResponse;
-import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -21,7 +20,7 @@ public interface IRoomService {
 
     Room addNewRoom(RoomRequest roomRequest, Branch branch) throws IOException, SQLException;
 
-    ResponseEntity<String> deleteRoom(Long id);
+    void deleteRoom(Long id);
 
     Room updateRoom(Long roomId, RoomRequest roomRequest) throws IOException, SQLException;
 

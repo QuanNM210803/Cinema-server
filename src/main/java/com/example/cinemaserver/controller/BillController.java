@@ -4,17 +4,15 @@ import com.example.cinemaserver.model.Bill;
 import com.example.cinemaserver.response.BillResponse;
 import com.example.cinemaserver.service.BillService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/bills")
@@ -22,7 +20,7 @@ import java.util.Map;
 public class BillController {
     private final BillService billService;
     @GetMapping("/all")
-    public ResponseEntity<List<BillResponse>> getAllBills() throws SQLException {
+    public ResponseEntity<List<BillResponse>> getAllBills() {
         List<Bill> bills=billService.getAllBills();
         List<BillResponse> billResponses=new ArrayList<>();
         for(Bill bill:bills){
@@ -30,7 +28,7 @@ public class BillController {
         }
         return ResponseEntity.ok(billResponses);
     }
-    //test thu cai git
+
     @GetMapping("/{billId}")
     public ResponseEntity<?> getBill(@PathVariable("billId") Long id){
         try{
@@ -38,12 +36,12 @@ public class BillController {
             BillResponse billResponse=billService.getBillResponse(bill);
             return ResponseEntity.ok(billResponse);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     @GetMapping("/all/schedule/{scheduleId}")
-    public ResponseEntity<?> getBillsByScheduleId(@PathVariable("scheduleId") Long scheduleId) throws SQLException{
+    public ResponseEntity<?> getBillsByScheduleId(@PathVariable("scheduleId") Long scheduleId){
         try{
             List<Bill> bills=billService.getBillsByScheduleId(scheduleId);
             List<BillResponse> billResponses=new ArrayList<>();
@@ -52,12 +50,12 @@ public class BillController {
             }
             return ResponseEntity.ok(billResponses);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     @GetMapping("/all/user/{userId}")
-    public ResponseEntity<?> getBillsByUserId(@PathVariable("userId") Long userId) throws SQLException{
+    public ResponseEntity<?> getBillsByUserId(@PathVariable("userId") Long userId){
         try{
             List<Bill> bills=billService.getBillsByUserId(userId);
             List<BillResponse> billResponses=new ArrayList<>();
@@ -66,7 +64,7 @@ public class BillController {
             }
             return ResponseEntity.ok(billResponses);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }

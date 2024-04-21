@@ -7,6 +7,7 @@ import com.example.cinemaserver.response.TicketResponse;
 import com.example.cinemaserver.service.BillService;
 import com.example.cinemaserver.service.TicketService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class TicketController {
             TicketResponse ticketResponse=ticketService.getTicketResponse(ticket);
             return ResponseEntity.ok(ticketResponse);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -40,7 +41,7 @@ public class TicketController {
             }
             return ResponseEntity.ok(ticketResponses);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -54,7 +55,7 @@ public class TicketController {
             }
             return ResponseEntity.ok(ticketResponses);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -63,7 +64,7 @@ public class TicketController {
         try{
             if(bookingTicketRequest.getSeatScheduleId().size()>0){
                 List<Long> seatScheduleIdList=bookingTicketRequest.getSeatScheduleId();
-                if(ticketService.checkBooking(bookingTicketRequest.getSeatScheduleId())){
+                if(ticketService.checkBooking(seatScheduleIdList)){
                     Bill bill=billService.addNewBill(bookingTicketRequest.getUserId());
                     List<Ticket> tickets=ticketService.addNewTickets(seatScheduleIdList,bill);
                     List<TicketResponse> ticketResponses=new ArrayList<>();
@@ -71,13 +72,11 @@ public class TicketController {
                         ticketResponses.add(ticketService.getTicketResponse(ticket));
                     }
                     return ResponseEntity.ok(ticketResponses);
-                }else {
-                    return ResponseEntity.ok("Booking error.");
                 }
             }
-            return ResponseEntity.ok("Choose at least 1 seat to book a ticket");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Choose at least 1 seat to book a ticket.");
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }

@@ -5,6 +5,7 @@ import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.repository.UserRepository;
 import com.example.cinemaserver.response.OTPVerificationResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,25 +27,18 @@ public class ForgotPasswordService {
     public static final int OTP_EXPIRATION_MINUTES = 5;
 
     public static Boolean otpVerification(OTPVerificationRequest otpVerificationRequest) {
-        if(otpVerificationRequest.getSystemOTP().equals(otpVerificationRequest.getUserOTP().trim())
-            && LocalDateTime.now().isBefore(otpVerificationRequest.getOTPExpirationTime())){
-            return true;
-        }
-        return false;
+        return otpVerificationRequest.getSystemOTP().equals(otpVerificationRequest.getUserOTP().trim())
+                && LocalDateTime.now().isBefore(otpVerificationRequest.getOTPExpirationTime());
     }
 
     public OTPVerificationResponse sendOtpByEmail(String email) {
-        User user = userRepository.findByEmail(email).get();
-        if (user != null) {
-            LocalDateTime OTPExpirationTime=LocalDateTime.now().plusMinutes(OTP_EXPIRATION_MINUTES);
-            String otp = generateOTP();
-            String subject = "[LuxC] OTP Verification";
-            String text = "Your OTP is: " + otp+". The otp code is valid for 5 minutes from the time it is sent.";
-            sendEmail(email, subject, text);
-            return new OTPVerificationResponse(otp,OTPExpirationTime);
-        }else {
-            throw new UsernameNotFoundException("Not found user.");
-        }
+        userRepository.findByEmail(email).orElseThrow(()->new UsernameNotFoundException("Not found user."));
+        LocalDateTime OTPExpirationTime=LocalDateTime.now().plusMinutes(OTP_EXPIRATION_MINUTES);
+        String otp = generateOTP();
+        String subject = "[LuxC] OTP Verification";
+        String text = "Your OTP is: " + otp+". The otp code is valid for 5 minutes from the time it is sent.";
+        sendEmail(email, subject, text);
+        return new OTPVerificationResponse(otp,OTPExpirationTime);
     }
 
     public static String generateOTP() {
@@ -62,17 +56,21 @@ public class ForgotPasswordService {
         message.setTo(to);
         message.setSubject(subject);
         message.setText(text);
-        javaMailSender.send(message);
+        try {
+            javaMailSender.send(message);
+        }catch (MailException e){
+            throw new RuntimeException("Failed to send email.");
+        }
     }
 
-    public void resetPassword(String email, String password) {
+    public User resetPassword(String email, String password) {
         Optional<?> userOptional=userRepository.findByEmail(email);
         if(userOptional.isPresent()){
             User user= (User) userOptional.get();
             user.setPassword(passwordEncoder.encode(password));
-            userRepository.save(user);
+            return userRepository.save(user);
         }else {
-            throw new UsernameNotFoundException("Not fount user.");
+            throw new UsernameNotFoundException("Not found user.");
         }
     }
 }

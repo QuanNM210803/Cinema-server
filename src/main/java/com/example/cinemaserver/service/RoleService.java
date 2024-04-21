@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.lang.module.FindException;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,10 +28,10 @@ public class RoleService implements IRoleService {
     @Override
     public Role addNewRole(Role therole) {
         String roleName="ROLE_"+therole.getName().toUpperCase();
-        Role role=new Role(roleName);
         if(roleRepository.existsByName(roleName)){
-            throw new RoleAlreadyExistsException(therole.getName()+" role already exists");
+            throw new RoleAlreadyExistsException(roleName+" role already exists.");
         }
+        Role role=new Role(roleName);
         return roleRepository.save(role);
     }
 
@@ -41,35 +42,45 @@ public class RoleService implements IRoleService {
     }
 
     public Role removeAllUserFromRole(Long roleId){
-        Optional<Role> role=roleRepository.findById(roleId);
-        role.ifPresent(Role::removeAllUserFromRole);
-        return roleRepository.save(role.get());
+        Role role=roleRepository.findById(roleId).orElseThrow(()->new FindException("Not found role."));
+        role.removeAllUserFromRole();
+        return roleRepository.save(role);
     }
 
     @Override
     public User removeUserFromRole(Long userId, Long roleId) {
         Optional<User> user=userRepository.findById(userId);
         Optional<Role> role=roleRepository.findById(roleId);
-        if(role.isPresent() && role.get().getUsers().contains(user.get())){
+        if(user.isEmpty()){
+            throw new UsernameNotFoundException("Not found user.");
+        }
+        if(role.isEmpty()){
+            throw new UsernameNotFoundException("Not found role.");
+        }
+        if(role.get().getUsers().contains(user.get())){
             role.get().removeUserFromRole(user.get());
             roleRepository.save(role.get());
             return user.get();
+        }else {
+            throw new RuntimeException(user.get().getFullName() +" doesn't have role "+role.get().getName());
         }
-        throw new UsernameNotFoundException("User not found");
     }
 
     @Override
     public User assignRoleToUser(Long userId, Long roleId) {
         Optional<User> user=userRepository.findById(userId);
         Optional<Role> role=roleRepository.findById(roleId);
-        if(user.isPresent() && user.get().getRoles().contains(role.get())){
-            throw new UserAlreadyExistsException(
-                    user.get().getFullName()+" is already assign to the "+role.get().getName()+" role");
+        if(user.isEmpty()){
+            throw new UsernameNotFoundException("Not found user.");
         }
-        if(role.isPresent()){
-            role.get().assignRoleToUser(user.get());
-            roleRepository.save(role.get());
+        if(role.isEmpty()){
+            throw new UsernameNotFoundException("Not found role.");
         }
+        if(user.get().getRoles().contains(role.get())){
+            throw new UserAlreadyExistsException(user.get().getFullName()+" is already assign to the "+role.get().getName()+" role.");
+        }
+        role.get().assignRoleToUser(user.get());
+        roleRepository.save(role.get());
         return user.get();
     }
 }

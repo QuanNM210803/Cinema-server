@@ -24,6 +24,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.lang.module.FindException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -43,30 +44,34 @@ public class AuthController {
             return ResponseEntity.ok(userResponse);
         }catch (UserAlreadyExistsException e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        } catch (SQLException | IOException e) {
-            throw new RuntimeException(e);
+        } catch (SQLException | IOException | FindException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest){
         //xac thuc
-        Authentication authentication= authenticationManager
-                .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword()));
+        try{
+            Authentication authentication= authenticationManager
+                    .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),loginRequest.getPassword()));
 
-        //cho phép Spring Security biết được người dùng hiện tại đã xác thực là ai và có quyền truy cập gì trong suốt quá trình xử lý yêu cầu
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+            //cho phép Spring Security biết được người dùng hiện tại đã xác thực là ai và có quyền truy cập gì trong suốt quá trình xử lý yêu cầu
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt= jwtUtils.generateJwtTokenForUser(authentication);
-        CinemaUserDetails userDetails= (CinemaUserDetails) authentication.getPrincipal();
-        List<String> roles=userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority).toList();
-        return ResponseEntity.ok(new JwtResponse(
-                userDetails.getId(),
-                userDetails.getEmail(),
-                jwt,
-                roles
-        ));
+            String jwt= jwtUtils.generateJwtTokenForUser(authentication);
+            CinemaUserDetails userDetails= (CinemaUserDetails) authentication.getPrincipal();
+            List<String> roles=userDetails.getAuthorities().stream()
+                    .map(GrantedAuthority::getAuthority).toList();
+            return ResponseEntity.ok(new JwtResponse(
+                    userDetails.getId(),
+                    userDetails.getEmail(),
+                    jwt,
+                    roles
+            ));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Login failed.");
+        }
     }
 
     @PutMapping("/sendOtp/{email}")
@@ -75,7 +80,7 @@ public class AuthController {
             OTPVerificationResponse otpVerification=forgotPasswordService.sendOtpByEmail(email);
             return ResponseEntity.ok(otpVerification);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 
@@ -86,12 +91,13 @@ public class AuthController {
     }
 
     @PutMapping("/resetPassword")
-    public ResponseEntity<?> resetPassword(@RequestBody LoginRequest loginRequest){
+    public ResponseEntity<?> resetPassword(@RequestBody LoginRequest loginRequest) {
         try{
-            forgotPasswordService.resetPassword(loginRequest.getEmail(),loginRequest.getPassword());
-            return ResponseEntity.ok("Reset password successfully!");
-        }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            User user=forgotPasswordService.resetPassword(loginRequest.getEmail(),loginRequest.getPassword());
+            UserResponse userResponse=userService.getUserResponse(user);
+            return ResponseEntity.ok(userResponse);
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }

@@ -7,10 +7,10 @@ import com.example.cinemaserver.response.SeatResponse;
 import com.example.cinemaserver.service.RoomService;
 import com.example.cinemaserver.service.SeatService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,18 +21,28 @@ public class SeatController {
     private final SeatService seatService;
     private final RoomService roomService;
     @GetMapping("/all/{roomId}")
-    public ResponseEntity<?> getSeatsByRoomId(@PathVariable("roomId") Long id) throws SQLException {
-        List<Seat> seats=seatService.findSeatsByRoomId(id);
-        List<SeatResponse> seatResponses=new ArrayList<>();
-        for(Seat seat:seats){
-            seatResponses.add(seatService.getSeatResponse(seat));
+    public ResponseEntity<?> getSeatsByRoomId(@PathVariable("roomId") Long id) {
+        try {
+            List<Seat> seats=seatService.findSeatsByRoomId(id);
+            List<SeatResponse> seatResponses=new ArrayList<>();
+            for(Seat seat:seats){
+                seatResponses.add(seatService.getSeatResponse(seat));
+            }
+            return ResponseEntity.ok(seatResponses);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-        return ResponseEntity.ok(seatResponses);
     }
 
     @GetMapping("/{seatId}")
     public ResponseEntity<?> getSeatBySeatId(@PathVariable("seatId") Long id){
-        return ResponseEntity.ok(seatService.getSeatBySeatId(id));
+        try {
+            Seat seat=seatService.getSeatBySeatId(id);
+            SeatResponse seatResponse=seatService.getSeatResponse(seat);
+            return ResponseEntity.ok(seatResponse);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @PostMapping("/addNew/{roomId}")
@@ -44,20 +54,19 @@ public class SeatController {
             SeatResponse seatResponse=seatService.getSeatResponse(seat);
             return ResponseEntity.ok(seatResponse);
         }catch (Exception e){
-            return ResponseEntity.ok("Error add seat.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     @PutMapping("/update/{seatId}")
     public ResponseEntity<?> updateSeat(@PathVariable("seatId") Long id
-                                        ,@ModelAttribute SeatRequest seatRequest) throws SQLException {
+                                        ,@ModelAttribute SeatRequest seatRequest) {
         try{
             Seat seat=seatService.updateSeat(id,seatRequest);
             SeatResponse seatResponse=seatService.getSeatResponse(seat);
             return ResponseEntity.ok(seatResponse);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-
     }
 }

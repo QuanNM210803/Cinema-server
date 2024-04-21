@@ -3,7 +3,6 @@ package com.example.cinemaserver.service;
 import com.example.cinemaserver.request.BranchRequest;
 import com.example.cinemaserver.model.Branch;
 import com.example.cinemaserver.response.BranchResponse;
-import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -17,7 +16,7 @@ public interface IBranchService {
 
     Branch addNewBranch(Long areaId,BranchRequest branchRequest) throws IOException, SQLException;
 
-    ResponseEntity<String> deleteBranch(Long id);
+    void deleteBranch(Long id);
 
     Branch getBranch(Long id);
 

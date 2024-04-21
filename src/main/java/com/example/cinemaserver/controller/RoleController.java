@@ -26,26 +26,30 @@ public class RoleController {
     @PostMapping("/addNew")
     public ResponseEntity<?> addNewRole(@RequestBody Role role){
         try{
-            Role role1=roleService.addNewRole(role);
-            return ResponseEntity.ok(role1);
+            Role theRole=roleService.addNewRole(role);
+            return ResponseEntity.ok(theRole);
         }catch (RoleAlreadyExistsException e){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
-
     @DeleteMapping("/delete/{roleId}")
-    public void deleteRole(@PathVariable("roleId") Long roleId){
-        roleService.deleteRole(roleId);
+    public ResponseEntity<?> deleteRole(@PathVariable("roleId") Long roleId){
+        try {
+            roleService.deleteRole(roleId);
+            return ResponseEntity.ok("Delete successfully.");
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @PostMapping("/remove-all-user-from-role/{roleId}")
     public ResponseEntity<?> removeAllUserFromRole(@PathVariable("roleId") Long roleId){
         try {
-            return ResponseEntity.ok(roleService.removeAllUserFromRole(roleId));
+            Role role=roleService.removeAllUserFromRole(roleId);
+            return ResponseEntity.ok(role);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-
     }
 
     @PostMapping("/remove-user-from-role/{userId}/{roleId}")
@@ -56,18 +60,18 @@ public class RoleController {
             UserResponse userResponse=userService.getUserResponse(user);
             return ResponseEntity.ok(userResponse);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
     @PostMapping("/assign-role-to-user/{roleId}/{userId}")
     public ResponseEntity<?> assignRoleToUser(@PathVariable("userId") Long userId,
-                                                         @PathVariable("roleId") Long roleId){
+                                              @PathVariable("roleId") Long roleId){
         try{
             User user=roleService.assignRoleToUser(userId,roleId);
             UserResponse userResponse=userService.getUserResponse(user);
             return ResponseEntity.ok(userResponse);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }

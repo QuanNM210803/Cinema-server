@@ -3,7 +3,6 @@ package com.example.cinemaserver.service;
 import com.example.cinemaserver.request.MovieRequest;
 import com.example.cinemaserver.model.Movie;
 import com.example.cinemaserver.response.MovieResponse;
-import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -20,7 +19,7 @@ public interface IMovieService {
 
     Movie addNewMovie(MovieRequest movieRequest) throws IOException, SQLException;
 
-    ResponseEntity<String> deleteMovieById(Long id);
+    void deleteMovieById(Long id);
 
 
     Movie updateMovie(Long id, MovieRequest movieRequest) throws IOException, SQLException;

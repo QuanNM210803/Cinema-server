@@ -5,6 +5,7 @@ import com.example.cinemaserver.model.Area;
 import com.example.cinemaserver.response.AreaResponse;
 import com.example.cinemaserver.service.AreaService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,16 +19,12 @@ public class AreaController {
     private final AreaService areaService;
     @GetMapping("/all")
     public ResponseEntity<?> getAreas(){
-        try{
-            List<Area> areas=areaService.getAreas();
-            List<AreaResponse> areaResponses=new ArrayList<>();
-            for(Area area:areas){
-                areaResponses.add(areaService.getAreaResponse(area));
-            }
-            return ResponseEntity.ok(areaResponses);
-        }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+        List<Area> areas=areaService.getAreas();
+        List<AreaResponse> areaResponses=new ArrayList<>();
+        for(Area area:areas){
+            areaResponses.add(areaService.getAreaResponse(area));
         }
+        return ResponseEntity.ok(areaResponses);
     }
 
     @GetMapping("/{areaId}")
@@ -37,18 +34,19 @@ public class AreaController {
             AreaResponse areaResponses=areaService.getAreaResponse(area);
             return ResponseEntity.ok(areaResponses);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
     @PostMapping("/addNew")
     public ResponseEntity<?> addNewArea(@ModelAttribute AreaRequest areaRequest){
-        try{
+        try {
             Area area=areaService.addNewArea(areaRequest);
             AreaResponse areaResponse=areaService.getAreaResponse(area);
             return ResponseEntity.ok(areaResponse);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
+
     }
     @PutMapping("/update/{areaId}")
     public ResponseEntity<?> updateArea(@PathVariable("areaId") Long id
@@ -58,7 +56,7 @@ public class AreaController {
             AreaResponse areaResponse=areaService.getAreaResponse(area);
             return ResponseEntity.ok(areaResponse);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 }

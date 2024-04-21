@@ -10,10 +10,11 @@ import com.example.cinemaserver.service.MovieService;
 import com.example.cinemaserver.service.RoomService;
 import com.example.cinemaserver.service.ScheduleService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
+import java.lang.module.FindException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,36 +27,40 @@ public class ScheduleController {
     private final RoomService roomService;
     private final MovieService movieService;
     @GetMapping("/all")
-    public ResponseEntity<?> getSchedules(){
+    public ResponseEntity<?> getSchedules() {
+        List<Schedule> schedules=scheduleService.getSchedules();
+        List<ScheduleResponse> scheduleResponses=new ArrayList<>();
+        for(Schedule schedule:schedules){
+            scheduleResponses.add(scheduleService.getScheduleResponse(schedule));
+        }
+        return ResponseEntity.ok(scheduleResponses);
+    }
+    @GetMapping("/all/movie/{movieId}")
+    public ResponseEntity<?> getSchedulesByMovieId(@PathVariable("movieId") Long movieId) {
         try{
-            List<Schedule> schedules=scheduleService.getSchedules();
+            List<Schedule> schedules=scheduleService.getScheduleByMovieId(movieId);
             List<ScheduleResponse> scheduleResponses=new ArrayList<>();
             for(Schedule schedule:schedules){
                 scheduleResponses.add(scheduleService.getScheduleResponse(schedule));
             }
             return ResponseEntity.ok(scheduleResponses);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-    }
-    @GetMapping("/all/movie/{movieId}")
-    public ResponseEntity<List<ScheduleResponse>> getSchedulesByMovieId(@PathVariable("movieId") Long movieId) throws SQLException {
-        List<Schedule> schedules=scheduleService.getScheduleByMovieId(movieId);
-        List<ScheduleResponse> scheduleResponses=new ArrayList<>();
-        for(Schedule schedule:schedules){
-            scheduleResponses.add(scheduleService.getScheduleResponse(schedule));
-        }
-        return ResponseEntity.ok(scheduleResponses);
     }
 
     @GetMapping("/all/room/{roomId}")
-    public ResponseEntity<List<ScheduleResponse>> getSchedulesByRoomId(@PathVariable("roomId") Long roomId) throws SQLException {
-        List<Schedule> schedules=scheduleService.getScheduleByRoomId(roomId);
-        List<ScheduleResponse> scheduleResponses=new ArrayList<>();
-        for(Schedule schedule:schedules){
-            scheduleResponses.add(scheduleService.getScheduleResponse(schedule));
+    public ResponseEntity<?> getSchedulesByRoomId(@PathVariable("roomId") Long roomId) {
+        try{
+            List<Schedule> schedules=scheduleService.getScheduleByRoomId(roomId);
+            List<ScheduleResponse> scheduleResponses=new ArrayList<>();
+            for(Schedule schedule:schedules){
+                scheduleResponses.add(scheduleService.getScheduleResponse(schedule));
+            }
+            return ResponseEntity.ok(scheduleResponses);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-        return ResponseEntity.ok(scheduleResponses);
     }
 
     @GetMapping("/{scheduleId}")
@@ -65,7 +70,7 @@ public class ScheduleController {
             ScheduleResponse scheduleResponse=scheduleService.getScheduleResponse(schedule);
             return ResponseEntity.ok(scheduleResponse);
         }catch (Exception e){
-            return ResponseEntity.ok("Not found schedule.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
     // lay lich chieu theo rap va phim, dung cho qua trinh dat ve
@@ -80,7 +85,7 @@ public class ScheduleController {
             }
             return ResponseEntity.ok(scheduleResponses);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
@@ -90,28 +95,27 @@ public class ScheduleController {
     public ResponseEntity<?> getSchedulesByRoomIdDate(
             @ModelAttribute ScheduleRoomDateRequest scheduleRoomDateRequest){
         try{
-            List<Schedule> schedules=scheduleService.getSchedulesByRoomIdDate(scheduleRoomDateRequest.getMovieId()
-            ,scheduleRoomDateRequest.getRoomId(),scheduleRoomDateRequest.getStartDate());
+            List<Schedule> schedules=scheduleService.getSchedulesByRoomIdDate(scheduleRoomDateRequest.getRoomId()
+                                                                            ,scheduleRoomDateRequest.getStartDate());
             List<ScheduleResponse> scheduleResponses=new ArrayList<>();
             for(Schedule schedule:schedules){
                 scheduleResponses.add(scheduleService.getScheduleResponse(schedule));
             }
             return ResponseEntity.ok(scheduleResponses);
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 
     @DeleteMapping("/delete/{scheduleId}")
     public ResponseEntity<String> deleteSchedule(@PathVariable("scheduleId") Long id){
         try {
-            Schedule schedule=scheduleService.getScheduleById(id);
-            if(LocalDate.now().isBefore(schedule.getStartDate()) && !scheduleService.ordered(id)){
-                return scheduleService.deleteSchedule(id);
-            }
-            return ResponseEntity.ok("Cannot be deleted because tickets have already been booked or showtime have been made");
-        }catch (Exception e){
-            return ResponseEntity.ok("Error delete schedule.");
+            scheduleService.deleteSchedule(id);
+            return ResponseEntity.ok("Delete successfully.");
+        }catch (FindException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (RuntimeException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
     @PutMapping("/update/{scheduleId}")
@@ -119,21 +123,28 @@ public class ScheduleController {
                                             , @ModelAttribute ScheduleRequest scheduleRequest){
         try{
             Schedule schedule=scheduleService.getScheduleById(scheduleId);
-            if(schedule.getRoom().getStatus()
-                    && LocalDate.now().isBefore(schedule.getStartDate())
-                    && LocalDate.now().isBefore(scheduleRequest.getStartDate())
-                    && schedule.getMovie().getReleaseDate().isBefore(scheduleRequest.getStartDate().plusDays(1))
-                    && !scheduleService.ordered(scheduleId)) {
-                Schedule schedule1 = scheduleService.updateSchedule(scheduleId, scheduleRequest);
-                if(schedule1==null){
-                    throw new Exception("Showtime clash");
-                }
-                ScheduleResponse scheduleResponse = scheduleService.getScheduleResponse(schedule1);
-                return ResponseEntity.ok(scheduleResponse);
+            if(!schedule.getRoom().getStatus()){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Can't be updated because screening room is not operating.");
             }
-            return ResponseEntity.ok("Cannot be updated because tickets have already been booked or showtime have been made or already booked");
+            if(!LocalDate.now().isBefore(schedule.getStartDate())){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Can't be updated because the show has already been shown.");
+            }
+            if(!LocalDate.now().isBefore(scheduleRequest.getStartDate())){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Can't be updated because showtime must be after today.");
+            }
+            if(!schedule.getMovie().getReleaseDate().isBefore(scheduleRequest.getStartDate().plusDays(1))){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Can't be updated because showtime must be after the movie release date.");
+            }
+            if(scheduleService.ordered(scheduleId)){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Can't be updated because tickets have already been booked.");
+            }
+            Schedule theSchedule = scheduleService.updateSchedule(scheduleId, scheduleRequest);
+            ScheduleResponse scheduleResponse = scheduleService.getScheduleResponse(theSchedule);
+            return ResponseEntity.ok(scheduleResponse);
+        }catch (FindException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 
@@ -144,16 +155,22 @@ public class ScheduleController {
         try{
             Room room=roomService.getRoom(roomId);
             Movie movie=movieService.getMovie(movieId);
-            if(room.getStatus()
-                    && LocalDate.now().isBefore(scheduleRequest.getStartDate())
-                    && movie.getReleaseDate().isBefore(scheduleRequest.getStartDate().plusDays(1))){
-                Schedule schedule=scheduleService.addNewSchedule(movieId,roomId,scheduleRequest);
-                ScheduleResponse scheduleResponse=scheduleService.getScheduleResponse(schedule);
-                return ResponseEntity.ok(scheduleResponse);
+            if(!room.getStatus()){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Can't be create showtime because screening room is not operating.");
             }
-            return ResponseEntity.ok("Error: The room is out of service or showtime in the past");
+            if(!LocalDate.now().isBefore(scheduleRequest.getStartDate())){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Can't be create showtime because showtime must be after today.");
+            }
+            if(!movie.getReleaseDate().isBefore(scheduleRequest.getStartDate().plusDays(1))){
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("Can't be create showtime because showtime must be after the movie release date.");
+            }
+            Schedule schedule=scheduleService.addNewSchedule(movieId,roomId,scheduleRequest);
+            ScheduleResponse scheduleResponse=scheduleService.getScheduleResponse(schedule);
+            return ResponseEntity.ok(scheduleResponse);
+        }catch (FindException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
         }
     }
 }

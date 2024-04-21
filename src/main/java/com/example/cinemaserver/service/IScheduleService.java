@@ -3,7 +3,6 @@ package com.example.cinemaserver.service;
 import com.example.cinemaserver.request.ScheduleRequest;
 import com.example.cinemaserver.model.Schedule;
 import com.example.cinemaserver.response.ScheduleResponse;
-import org.springframework.http.ResponseEntity;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -18,13 +17,13 @@ public interface IScheduleService {
 
     List<Schedule> getScheduleByRoomId(Long roomId);
 
-    ResponseEntity<String> deleteSchedule(Long id);
+    void deleteSchedule(Long id);
 
-    Schedule updateSchedule(Long scheduleId, ScheduleRequest scheduleRequest);
+    Schedule updateSchedule(Long scheduleId, ScheduleRequest scheduleRequest) throws Exception;
 
     Schedule addNewSchedule(Long movieId, Long roomId, ScheduleRequest scheduleRequest) throws Exception;
 
-    List<Schedule> getSchedulesByRoomIdDate(Long movieId, Long roomId, LocalDate startDate);
+    List<Schedule> getSchedulesByRoomIdDate(Long roomId, LocalDate startDate);
 
     boolean ordered(Long scheduleId);
 

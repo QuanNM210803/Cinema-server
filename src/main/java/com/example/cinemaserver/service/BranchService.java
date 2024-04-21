@@ -1,6 +1,5 @@
 package com.example.cinemaserver.service;
 
-import com.example.cinemaserver.exception.ResourceNotFoundException;
 import com.example.cinemaserver.model.*;
 import com.example.cinemaserver.repository.ScheduleRepository;
 import com.example.cinemaserver.request.BranchRequest;
@@ -12,12 +11,11 @@ import com.example.cinemaserver.response.BranchResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.sql.rowset.serial.SerialBlob;
 import java.io.IOException;
+import java.lang.module.FindException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -32,17 +30,15 @@ public class BranchService implements IBranchService{
     private final AreaService areaService;
     private final TicketRepository ticketRepository;
     private final ScheduleRepository scheduleRepository;
+    private final MovieService movieService;
     @Override
     public List<Branch> getAll() {
         return branchRepository.findAll();
     }
     @Override
     public Branch getBranch(Long id) {
-        return branchRepository.findById(id)
-                .orElseThrow(()->new ResourceNotFoundException("Branch not found"));
+        return branchRepository.findById(id).orElseThrow(()->new FindException("Not found branch."));
     }
-
-
     @Override
     public Branch addNewBranch(Long areaId, BranchRequest branchRequest) throws IOException, SQLException {
         Branch branch=new Branch();
@@ -60,19 +56,14 @@ public class BranchService implements IBranchService{
     }
 
     @Override
-    public ResponseEntity<String> deleteBranch(Long id) {
-        try{
-            Branch branch=branchRepository.findById(id).get();
-            branchRepository.deleteById(id);
-            return ResponseEntity.ok("Delete successfully.");
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error fetching branch.");
-        }
+    public void deleteBranch(Long id) {
+        this.getBranch(id);
+        branchRepository.deleteById(id);
     }
     @Override
     public Branch updateBranch(Long id, BranchRequest branchRequest) throws IOException, SQLException {
         Branch branch=branchRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));;
+                .orElseThrow(() -> new FindException("Not found branch."));
         List<Schedule> futureSchedules=scheduleRepository.findSchedulesFutureByBranch(id,LocalDate.now(),LocalTime.now());
         if(branchRequest.getStatus() || futureSchedules.size()==0){
             if(!StringUtils.isBlank(branchRequest.getName())){
@@ -98,18 +89,20 @@ public class BranchService implements IBranchService{
             branch.setStatus(branchRequest.getStatus());
             return branchRepository.save(branch);
         }else {
-            throw new RuntimeException("The branch still has unscheduled showings.");
+            throw new RuntimeException("Cannot set inactive status because showtime that haven't been broadcast yet exist.");
         }
-
     }
 
     @Override
     public List<Branch> getBranchClientByMovieIdAndAreaId(Long movieId,Long areaId) {
+        areaService.getArea(areaId);
+        movieService.getMovie(movieId);
         return branchRepository.findBranchClientByMovieIdAndAreaId(movieId,areaId, LocalDate.now(), LocalTime.now());
     }
 
     @Override
     public List<Branch> getBranchByAreaId(Long areaId) {
+        areaService.getArea(areaId);
         return branchRepository.findBranchByAreaId(areaId);
     }
 
@@ -145,7 +138,7 @@ public class BranchService implements IBranchService{
     }
 
     @Override
-    public BranchResponse getBranchResponseNonePhoto(Branch branch) throws SQLException {
+    public BranchResponse getBranchResponseNonePhoto(Branch branch) {
         Area area=branch.getArea();
         AreaResponse areaResponse=areaService.getAreaResponse(area);
         List<Ticket> tickets=ticketRepository.findTicketsByBranchId(branch.getId());

@@ -1,10 +1,15 @@
 package com.example.cinemaserver.controller;
 
 import com.example.cinemaserver.request.StatisticDateRequest;
+import com.example.cinemaserver.response.BillResponse;
+import com.example.cinemaserver.response.StatisticDateResponse;
 import com.example.cinemaserver.service.StatisticService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -17,18 +22,19 @@ public class StatisticController {
     public ResponseEntity<?> getStatisticDates(@ModelAttribute StatisticDateRequest statisticDateRequest){
         try{
             if(statisticDateRequest.getStartDate()!=null && statisticDateRequest.getEndDate()!=null){
-                return ResponseEntity.ok(statisticService.getStatisticDate_MovieId_BranchId(statisticDateRequest));
+                List<StatisticDateResponse> statisticDateResponses=statisticService.getStatisticDate_MovieId_BranchId(statisticDateRequest);
+                return ResponseEntity.ok(statisticDateResponses);
             }else if(statisticDateRequest.getStartDate()==null && statisticDateRequest.getEndDate()==null){
                 if(statisticDateRequest.getMovieId()==null && statisticDateRequest.getBranchId()==null){
-                    return ResponseEntity.ok("Select statistical objects");
+                    return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Enter statistics object.");
                 }
-                return ResponseEntity.ok(statisticService.getStatisticMovieId_BranchId(statisticDateRequest));
+                List<BillResponse> billResponses=statisticService.getStatisticMovieId_BranchId(statisticDateRequest);
+                return ResponseEntity.ok(billResponses);
             } else {
-                return ResponseEntity.ok("Enter both start and end dates.");
+                return  ResponseEntity.status(HttpStatus.NOT_FOUND).body("Enter both start and end dates.");
             }
         }catch (Exception e){
-            return ResponseEntity.ok(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-
 }

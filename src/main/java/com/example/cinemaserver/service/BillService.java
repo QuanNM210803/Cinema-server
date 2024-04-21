@@ -1,7 +1,6 @@
 package com.example.cinemaserver.service;
 
 import com.example.cinemaserver.model.Bill;
-import com.example.cinemaserver.model.Schedule;
 import com.example.cinemaserver.model.Ticket;
 import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.repository.BillRepository;
@@ -11,7 +10,7 @@ import com.example.cinemaserver.response.UserResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
+import java.lang.module.FindException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -30,22 +29,18 @@ public class BillService implements IBillService{
 
     @Override
     public Bill getBill(Long id) {
-        try {
-            return billRepository.findById(id).get();
-        }catch (Exception e){
-            throw new RuntimeException("Not found bill.");
-        }
+        return billRepository.findById(id).orElseThrow(()->new FindException("Not found bill."));
     }
 
     @Override
     public List<Bill> getBillsByScheduleId(Long scheduleId) {
-        Schedule schedule=scheduleService.getScheduleById(scheduleId);
+        scheduleService.getScheduleById(scheduleId);
         return billRepository.findByScheduleId(scheduleId);
     }
 
     @Override
     public List<Bill> getBillsByUserId(Long userId) {
-        User user=userService.getUserById(userId);
+        userService.getUserById(userId);
         return billRepository.findByUserId(userId);
     }
 
@@ -56,10 +51,9 @@ public class BillService implements IBillService{
     }
 
     @Override
-    public BillResponse getBillResponse(Bill bill) throws SQLException {
+    public BillResponse getBillResponse(Bill bill) {
         User user=bill.getUser();
         UserResponse userResponse=userService.getUserResponseNonePhoto(user);
-        System.out.println(bill.getCreatedTime());
         DateTimeFormatter formatDate= DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter formatTime= DateTimeFormatter.ofPattern("HH:mm:ss");
         List<Ticket> tickets=ticketRepository.findByBillId(bill.getId());

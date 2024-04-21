@@ -8,7 +8,6 @@ import com.example.cinemaserver.response.StatisticDateResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -19,13 +18,21 @@ import java.util.List;
 public class StatisticService implements IStatisticService{
     private final BillRepository billRepository;
     private final BillService billService;
-    private final TicketService ticketService;
+    private final MovieService movieService;
+    private final BranchService branchService;
     @Override
-    public Object getStatisticDate_MovieId_BranchId(StatisticDateRequest statisticDateRequest) throws SQLException {
+    public List<StatisticDateResponse> getStatisticDate_MovieId_BranchId(StatisticDateRequest statisticDateRequest) {
         LocalDate startDate=statisticDateRequest.getStartDate();
         LocalDate endDate=statisticDateRequest.getEndDate();
         Long movieId=statisticDateRequest.getMovieId();
         Long branchId=statisticDateRequest.getBranchId();
+
+        if(branchId!=null){
+            branchService.getBranch(branchId);
+        }
+        if(movieId!=null){
+            movieService.getMovie(movieId);
+        }
 
         List<StatisticDateResponse> statisticDateResponses=new ArrayList<>();
         for(LocalDate currentDate=startDate;currentDate.isBefore(endDate.plusDays(1));currentDate=currentDate.plusDays(1)){
@@ -42,9 +49,16 @@ public class StatisticService implements IStatisticService{
     }
 
     @Override
-    public Object getStatisticMovieId_BranchId(StatisticDateRequest statisticDateRequest) throws SQLException {
+    public List<BillResponse> getStatisticMovieId_BranchId(StatisticDateRequest statisticDateRequest) {
         Long movieId=statisticDateRequest.getMovieId();
         Long branchId=statisticDateRequest.getBranchId();
+
+        if(branchId!=null){
+            branchService.getBranch(branchId);
+        }
+        if(movieId!=null){
+            movieService.getMovie(movieId);
+        }
 
         List<Bill> bills=billRepository.findBillsByMovieId_BranchId(movieId,branchId);
         List<BillResponse> billResponses=new ArrayList<>();
