@@ -5,9 +5,11 @@ import com.example.cinemaserver.request.UserUpdateUserRequest;
 import com.example.cinemaserver.model.User;
 import com.example.cinemaserver.response.UserResponse;
 import com.example.cinemaserver.service.IUserService;
+import com.example.cinemaserver.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.SQLException;
@@ -18,9 +20,10 @@ import java.util.List;
 @RequestMapping("/users")
 @RequiredArgsConstructor
 public class UserController {
-    public final IUserService userService;
+    private final UserService userService;
     @GetMapping("/all")
-    private ResponseEntity<List<UserResponse>> getUsers() throws SQLException {
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<UserResponse>> getUsers() throws SQLException {
         List<User> users=userService.getUsers();
         List<UserResponse> userResponses=new ArrayList<>();
         for(User user:users){
@@ -29,6 +32,7 @@ public class UserController {
         return ResponseEntity.ok(userResponses);
     }
     @GetMapping("/{userId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public ResponseEntity<?> getUserById(@PathVariable("userId") Long userId){
         try{
             User user=userService.getUserById(userId);
@@ -39,6 +43,7 @@ public class UserController {
         }
     }
     @DeleteMapping("/delete/{userId}")
+    @PreAuthorize("@userService.getUserById(#userId).email==principal.username")
     public ResponseEntity<String> deleteUser(@PathVariable("userId") Long userId){
         try{
             userService.deleteUser(userId);
@@ -48,6 +53,7 @@ public class UserController {
         }
     }
     @PutMapping("/update/admin/{userId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> adminUpdateUser(@PathVariable("userId") Long id
                                             , @ModelAttribute AdminUpdateUserRequest updateUserRequest) {
         try{
@@ -60,6 +66,7 @@ public class UserController {
     }
 
     @PutMapping("/update/user/{userId}")
+    @PreAuthorize("@userService.getUserById(#id).email==principal.username")
     public ResponseEntity<?> userUpdateUser(@PathVariable("userId") Long id
                                             , @ModelAttribute UserUpdateUserRequest updateUserRequest) {
         try {

@@ -9,6 +9,7 @@ import com.example.cinemaserver.service.TicketService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -21,6 +22,8 @@ public class TicketController {
     private final TicketService ticketService;
     private final BillService billService;
     @GetMapping("/{ticketId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_USER') " +
+            "and @ticketService.getTicketResponse(@ticketService.getTicketById(#id)).billResponse.userResponse.email==principal.username)")
     public ResponseEntity<?> getTicketById(@PathVariable("ticketId") Long id){
         try{
             Ticket ticket=ticketService.getTicketById(id);
@@ -32,6 +35,8 @@ public class TicketController {
     }
 
     @GetMapping("/all/bill/{billId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_USER') " +
+            "and @billService.getBillResponse(@billService.getBill(#billId)).userResponse.email==principal.username)")
     public ResponseEntity<?> getTicketsByBillId(@PathVariable("billId") Long billId){
         try{
             List<Ticket> tickets=ticketService.getTicketsByBillId(billId);
@@ -46,6 +51,7 @@ public class TicketController {
     }
 
     @GetMapping("/all/schedule/{scheduleId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getTicketsByScheduleId(@PathVariable("scheduleId") Long scheduleId){
         try{
             List<Ticket> tickets=ticketService.getTicketsByScheduleId(scheduleId);
@@ -60,6 +66,7 @@ public class TicketController {
     }
 
     @PostMapping("/addNew")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public ResponseEntity<?> addNewTicket(@ModelAttribute BookingTicketRequest bookingTicketRequest){
         try{
             if(bookingTicketRequest.getSeatScheduleId().size()>0){

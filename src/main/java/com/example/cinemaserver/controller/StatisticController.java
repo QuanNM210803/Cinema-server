@@ -7,6 +7,7 @@ import com.example.cinemaserver.service.StatisticService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class StatisticController {
     private final StatisticService statisticService;
 
     @PostMapping("/Date_MovieId_BranchId")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getStatisticDates(@ModelAttribute StatisticDateRequest statisticDateRequest){
         try{
             if(statisticDateRequest.getStartDate()!=null && statisticDateRequest.getEndDate()!=null){

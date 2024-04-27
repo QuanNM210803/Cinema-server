@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.util.List;
 public class MovieController {
     private final IMovieService movieService;
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<MovieResponse>> getAllMovies() throws SQLException {
         List<Movie> movies=movieService.getAllMovies();
         return ResponseEntity.ok(getListMovieResponse(movies));
@@ -53,6 +55,7 @@ public class MovieController {
         }
     }
     @PostMapping("/addNew")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> addNewMovie(@Valid @ModelAttribute MovieRequest movieRequest) throws SQLException, IOException {
         Movie movie=movieService.addNewMovie(movieRequest);
         MovieResponse movieResponse=movieService.getMovieResponse(movie);
@@ -62,6 +65,7 @@ public class MovieController {
 //    viet de day thoi, chu dung ko dc xoa movie, neu xoa se anh huong cac ban khac
 //    trog khi cung ko nhat thiet phai xoa
     @DeleteMapping("/delete/{movieId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteMovie(@PathVariable("movieId") Long id){
         try {
             movieService.deleteMovieById(id);
@@ -72,6 +76,7 @@ public class MovieController {
     }
 
     @PutMapping("/update/{movieId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateMovie(@PathVariable("movieId") Long id
                                                     ,@ModelAttribute MovieRequest movieRequest) {
         try{

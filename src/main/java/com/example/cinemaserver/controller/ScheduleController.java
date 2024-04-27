@@ -12,6 +12,7 @@ import com.example.cinemaserver.service.ScheduleService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.module.FindException;
@@ -27,6 +28,7 @@ public class ScheduleController {
     private final RoomService roomService;
     private final MovieService movieService;
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getSchedules() {
         List<Schedule> schedules=scheduleService.getSchedules();
         List<ScheduleResponse> scheduleResponses=new ArrayList<>();
@@ -36,6 +38,7 @@ public class ScheduleController {
         return ResponseEntity.ok(scheduleResponses);
     }
     @GetMapping("/all/movie/{movieId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getSchedulesByMovieId(@PathVariable("movieId") Long movieId) {
         try{
             List<Schedule> schedules=scheduleService.getScheduleByMovieId(movieId);
@@ -50,6 +53,7 @@ public class ScheduleController {
     }
 
     @GetMapping("/all/room/{roomId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getSchedulesByRoomId(@PathVariable("roomId") Long roomId) {
         try{
             List<Schedule> schedules=scheduleService.getScheduleByRoomId(roomId);
@@ -64,6 +68,7 @@ public class ScheduleController {
     }
 
     @GetMapping("/{scheduleId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public ResponseEntity<?> getScheduleById(@PathVariable("scheduleId") Long scheduleId){
         try{
             Schedule schedule=scheduleService.getScheduleById(scheduleId);
@@ -75,6 +80,7 @@ public class ScheduleController {
     }
     // lay lich chieu theo rap va phim, dung cho qua trinh dat ve
     @GetMapping("/all/client/BranchAndMovie/{branchId}/{movieId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public ResponseEntity<?> getSchedulesByBranchIdMovieId(@PathVariable("branchId") Long branchId
                                                     ,@PathVariable("movieId") Long movieId){
         try {
@@ -92,6 +98,7 @@ public class ScheduleController {
     //phuc vu show lich chieu, de dat phong(day khong phai lay ra lich goi y dau nha)
     // dung cho them lich chieu cua admin
     @PostMapping("/getSchedulesByRoomIdDate")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getSchedulesByRoomIdDate(
             @ModelAttribute ScheduleRoomDateRequest scheduleRoomDateRequest){
         try{
@@ -108,6 +115,7 @@ public class ScheduleController {
     }
 
     @DeleteMapping("/delete/{scheduleId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<String> deleteSchedule(@PathVariable("scheduleId") Long id){
         try {
             scheduleService.deleteSchedule(id);
@@ -119,6 +127,7 @@ public class ScheduleController {
         }
     }
     @PutMapping("/update/{scheduleId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateSchedule(@PathVariable("scheduleId") Long scheduleId
                                             , @ModelAttribute ScheduleRequest scheduleRequest){
         try{
@@ -149,6 +158,7 @@ public class ScheduleController {
     }
 
     @PostMapping("/addNew/{movieId}/{roomId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> addNewSchedule(@PathVariable("movieId") Long movieId
                                                 ,@PathVariable("roomId") Long roomId
                                                 ,@ModelAttribute ScheduleRequest scheduleRequest){

@@ -6,6 +6,7 @@ import com.example.cinemaserver.service.BillService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ import java.util.List;
 public class BillController {
     private final BillService billService;
     @GetMapping("/all")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<BillResponse>> getAllBills() {
         List<Bill> bills=billService.getAllBills();
         List<BillResponse> billResponses=new ArrayList<>();
@@ -30,6 +32,8 @@ public class BillController {
     }
 
     @GetMapping("/{billId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_USER') " +
+            "and @billService.getBillResponse(@billService.getBill(#id)).userResponse.email==principal.username)")
     public ResponseEntity<?> getBill(@PathVariable("billId") Long id){
         try{
             Bill bill=billService.getBill(id);
@@ -41,6 +45,7 @@ public class BillController {
     }
 
     @GetMapping("/all/schedule/{scheduleId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getBillsByScheduleId(@PathVariable("scheduleId") Long scheduleId){
         try{
             List<Bill> bills=billService.getBillsByScheduleId(scheduleId);
@@ -55,6 +60,8 @@ public class BillController {
     }
 
     @GetMapping("/all/user/{userId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_USER') " +
+            "and @userService.getUserById(#userId).email==principal.username)")
     public ResponseEntity<?> getBillsByUserId(@PathVariable("userId") Long userId){
         try{
             List<Bill> bills=billService.getBillsByUserId(userId);

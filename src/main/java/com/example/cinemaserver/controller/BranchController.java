@@ -7,6 +7,7 @@ import com.example.cinemaserver.service.IBranchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -44,6 +45,7 @@ public class BranchController {
     }
     // lay rap theo phim va khu vuc, dung cho qua trinh dat ve
     @GetMapping("/all/client/movieAndArea/{movieId}/{areaId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public ResponseEntity<?> getBranchClientByMovieIdAndAreaId(@PathVariable("movieId") Long movieId
                                                         ,@PathVariable("areaId") Long areaId){
         try{
@@ -69,6 +71,7 @@ public class BranchController {
         }
     }
     @PostMapping("/addNew/{areaId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> addNewBranch(@PathVariable("areaId") Long areaId
                                             ,@ModelAttribute BranchRequest branchRequest) {
         try{
@@ -81,6 +84,7 @@ public class BranchController {
     }
     //viet de day thoi, chu dung xoa branch, thay vao do hay update status ve false
     @DeleteMapping("/delete/{branchId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> deleteBranch(@PathVariable("branchId") Long id){
         try{
             branchService.deleteBranch(id);
@@ -91,6 +95,7 @@ public class BranchController {
     }
 
     @PutMapping("/update/{branchId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateBranch(@PathVariable("branchId") Long id
                                                        ,@ModelAttribute BranchRequest branchRequest
     ) throws SQLException, IOException {

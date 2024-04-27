@@ -9,6 +9,7 @@ import com.example.cinemaserver.service.SeatService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class SeatController {
     private final SeatService seatService;
     private final RoomService roomService;
     @GetMapping("/all/{roomId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> getSeatsByRoomId(@PathVariable("roomId") Long id) {
         try {
             List<Seat> seats=seatService.findSeatsByRoomId(id);
@@ -35,6 +37,7 @@ public class SeatController {
     }
 
     @GetMapping("/{seatId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public ResponseEntity<?> getSeatBySeatId(@PathVariable("seatId") Long id){
         try {
             Seat seat=seatService.getSeatBySeatId(id);
@@ -46,6 +49,7 @@ public class SeatController {
     }
 
     @PostMapping("/addNew/{roomId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> addNewSeat(@PathVariable("roomId") Long roomId
                                             , @ModelAttribute SeatRequest seatRequest){
         try{
@@ -59,6 +63,7 @@ public class SeatController {
     }
 
     @PutMapping("/update/{seatId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateSeat(@PathVariable("seatId") Long id
                                         ,@ModelAttribute SeatRequest seatRequest) {
         try{

@@ -7,6 +7,7 @@ import com.example.cinemaserver.service.AreaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class AreaController {
         }
     }
     @PostMapping("/addNew")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> addNewArea(@ModelAttribute AreaRequest areaRequest){
         try {
             Area area=areaService.addNewArea(areaRequest);
@@ -49,6 +51,7 @@ public class AreaController {
 
     }
     @PutMapping("/update/{areaId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateArea(@PathVariable("areaId") Long id
                                         ,@ModelAttribute AreaRequest areaRequest){
         try {

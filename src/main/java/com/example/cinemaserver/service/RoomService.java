@@ -85,6 +85,9 @@ public class RoomService implements IRoomService{
     @Override
     public Room updateRoom(Long roomId, RoomRequest roomRequest) throws IOException, SQLException {
         Room room=this.getRoom(roomId);
+        if(!room.getBranch().getStatus() && roomRequest.getStatus()){
+            throw new RuntimeException("Cannot set inactive status because branch is inactive");
+        }
         List<Room> rooms=roomRepository.findAllRoomsByBranchId(room.getBranch().getId());
         List<String> roomNames=rooms.stream().map(Room::getName).toList();
         if(roomNames.contains(roomRequest.getName()) && !roomRequest.getName().equals(room.getName())){

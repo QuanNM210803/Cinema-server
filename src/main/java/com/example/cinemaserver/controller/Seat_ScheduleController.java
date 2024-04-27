@@ -6,6 +6,7 @@ import com.example.cinemaserver.service.Seat_ScheduleService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ import java.util.List;
 public class Seat_ScheduleController {
     private final Seat_ScheduleService seatScheduleService;
     @GetMapping("/get/{scheduleId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
     public ResponseEntity<?> getSeat_ScheduleByScheduleId(@PathVariable("scheduleId") Long scheduleId){
         try{
             List<Seat_Schedule> seatSchedules= seatScheduleService.getSeat_ScheduleByScheduleId(scheduleId);

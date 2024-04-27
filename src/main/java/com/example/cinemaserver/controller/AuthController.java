@@ -70,7 +70,7 @@ public class AuthController {
                     roles
             ));
         }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("Login failed.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Invalid email or password");
         }
     }
 
