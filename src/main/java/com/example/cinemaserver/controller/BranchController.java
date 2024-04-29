@@ -36,7 +36,7 @@ public class BranchController {
             List<Branch> branches=branchService.getBranchByAreaId(areaId);
             List<BranchResponse> branchResponses=new ArrayList<>();
             for(Branch branch:branches){
-                branchResponses.add(branchService.getBranchResponseNonePhoto(branch));
+                branchResponses.add(branchService.getBranchResponse(branch));
             }
             return ResponseEntity.ok(branchResponses);
         }catch (Exception e){
