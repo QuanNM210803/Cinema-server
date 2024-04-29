@@ -1,4 +1,4 @@
-package com.example.cinemaserver.security;
+package com.example.cinemaserver.security.config;
 
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;

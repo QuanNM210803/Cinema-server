@@ -1,4 +1,4 @@
-package com.example.cinemaserver.security;
+package com.example.cinemaserver.security.config;
 
 import com.example.cinemaserver.security.jwt.AuthTokenFilter;
 import com.example.cinemaserver.security.jwt.JwtAuthEntryPoint;
@@ -58,7 +58,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/areas/**","/auth/**","/bills/**","/branches/**"
                                 ,"/movies/**","/rooms/**","/schedules/**","/seat_schedule/**"
-                                ,"/seats/**","/tickets/**","/users/**","/statistics/**").permitAll()
+                                ,"/seats/**","/tickets/**","/users/**","/statistics/**"
+                                ,"/payment/vnpay/**").permitAll()
                         .requestMatchers("/roles/**").hasRole("ADMIN")
                         .anyRequest()
                         .authenticated());
