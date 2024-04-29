@@ -116,7 +116,7 @@ public class VNPayController {
     // tạm thời chưa dùng được, thằng vnpay nó ngu quá
     @GetMapping ("/refund")
     @PreAuthorize("@userService.getUserById(#refundRequest.userId).email==principal.username")
-    public void refundPayment(HttpServletRequest req, @RequestBody RefundRequest refundRequest) throws IOException {
+    public void refundPayment(HttpServletRequest req, @ModelAttribute RefundRequest refundRequest) throws IOException {
 
         String vnp_RequestId = VNPayConfig.getRandomNumber(8);
         String vnp_Version = "2.1.0";
@@ -191,6 +191,7 @@ public class VNPayController {
 
     // tạm thời chưa dùng được, thằng vnpay nó ngu quá
     @GetMapping("/get_payment")
+    @PreAuthorize("@userService.getUserById(#getPaymentRequest.userId).email==principal.username")
     public void getPayment(HttpServletRequest req, @ModelAttribute GetPaymentRequest getPaymentRequest) throws IOException{
         String vnp_RequestId = VNPayConfig.getRandomNumber(8);
         String vnp_Version = "2.1.0";
