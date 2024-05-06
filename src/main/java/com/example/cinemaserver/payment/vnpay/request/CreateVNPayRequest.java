@@ -4,11 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GetPaymentRequest {
+public class CreateVNPayRequest {
     private Long userId;
-    private String vnp_TxnRef;
-    private String vnp_TransactionDate;
+    private Long amount;
+    private List<Long> seatScheduleId;
 }

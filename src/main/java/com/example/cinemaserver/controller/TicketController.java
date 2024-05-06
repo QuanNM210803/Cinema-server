@@ -86,4 +86,14 @@ public class TicketController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
+
+    @GetMapping("/checkBookingTicket")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> checkBookingTicket(@RequestParam("seatScheduleId") List<Long> seatScheduleId){
+        try{
+            return ResponseEntity.ok(ticketService.checkBooking(seatScheduleId));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 }

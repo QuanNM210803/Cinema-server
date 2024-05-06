@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RefundRequest {
+public class GetVNPayRequest {
     private Long userId;
-    private Long amount;
     private String vnp_TxnRef;
-    private String vnp_PayDate;
+    private String vnp_TransactionDate;
 }

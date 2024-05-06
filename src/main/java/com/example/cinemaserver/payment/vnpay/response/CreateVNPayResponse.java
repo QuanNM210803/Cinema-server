@@ -8,6 +8,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class CreatePaymentResponse implements Serializable {
+public class CreateVNPayResponse implements Serializable {
     private String URL;
 }

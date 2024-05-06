@@ -59,7 +59,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/areas/**","/auth/**","/bills/**","/branches/**"
                                 ,"/movies/**","/rooms/**","/schedules/**","/seat_schedule/**"
                                 ,"/seats/**","/tickets/**","/users/**","/statistics/**"
-                                ,"/payment/vnpay/**").permitAll()
+                                ,"/payment/vnpay/**","/payment/zalopay/**").permitAll()
                         .requestMatchers("/roles/**").hasRole("ADMIN")
                         .anyRequest()
                         .authenticated());
