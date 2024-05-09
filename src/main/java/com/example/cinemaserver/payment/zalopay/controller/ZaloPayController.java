@@ -30,13 +30,13 @@ public class ZaloPayController {
     private static final String ORDER_CREATE_ENDPOINT = "https://sb-openapi.zalopay.vn/v2/create";
     private static final String ORDER_STATUS_ENDPOINT = "https://sb-openapi.zalopay.vn/v2/query";
     private static final String ORDER_REFUND_ENDPOINT = "https://sb-openapi.zalopay.vn/v2/refund";
-    private static final String CALLBACKURL = "http://localhost:5173/?list=";
-    private static final String REDIRECTURL = "http://localhost:5173/?list=";
+    private static final String CALLBACKURL = "http://localhost:5173/successPayment?list=";
+    private static final String REDIRECTURL = "http://localhost:5173/successPayment?list=";
     private static final String key1="9phuAOYhan4urywHTh0ndEXiV3pKHr5Q";
     private static final String key2="Iyz2habzyr7AG8SgvoBCbKwKi3UzlLi3";
     private static final String appId="553";
 
-    @GetMapping("/create_payment")
+    @PostMapping("/create_payment")
     @PreAuthorize("@userService.getUserById(#createZaloPayRequest.userId).email==principal.username")
     public ResponseEntity<?> createPayment(@ModelAttribute CreateZaloPayRequest createZaloPayRequest) {
         try{

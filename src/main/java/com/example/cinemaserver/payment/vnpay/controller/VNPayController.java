@@ -25,7 +25,7 @@ import java.util.*;
 @RestController
 @RequestMapping("/payment/vnpay")
 public class VNPayController {
-    @GetMapping("/create_payment")
+    @PostMapping("/create_payment")
     @PreAuthorize("@userService.getUserById(#createPaymentRequest.userId).email==principal.username")
     public ResponseEntity<?> createPayment(HttpServletRequest req, @ModelAttribute CreateVNPayRequest createPaymentRequest) {
         try{
@@ -116,7 +116,7 @@ public class VNPayController {
 
 
     // tạm thời chưa dùng được, thằng vnpay nó ngu quá
-    @GetMapping ("/refund")
+    @PostMapping ("/refund")
     @PreAuthorize("@userService.getUserById(#refundRequest.userId).email==principal.username")
     public void refundPayment(HttpServletRequest req, @ModelAttribute RefundVNPayRequest refundRequest) throws IOException {
 
@@ -191,7 +191,7 @@ public class VNPayController {
         System.out.println(response.toString());
     }
 
-    @GetMapping("/get_payment")
+    @PostMapping("/get_payment")
     @PreAuthorize("@userService.getUserById(#getPaymentRequest.userId).email==principal.username")
     public ResponseEntity<?> getPayment(HttpServletRequest req, @ModelAttribute GetVNPayRequest getPaymentRequest){
         try{
