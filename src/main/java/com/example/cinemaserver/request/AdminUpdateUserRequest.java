@@ -9,9 +9,9 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class AdminUpdateUserRequest {
-    private String fullName;
-    private String email;
+//    private String fullName;
+//    private String email;
     private List<Long> rolesId;
-    private LocalDate dob;
-    private MultipartFile photo;
+//    private LocalDate dob;
+//    private MultipartFile photo;
 }

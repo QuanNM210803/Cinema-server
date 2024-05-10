@@ -79,20 +79,20 @@ public class UserService implements IUserService{
     @Override
     public User adminUpdateUser(Long id, AdminUpdateUserRequest updateUserRequest) throws IOException, SQLException {
         User user= this.getUserById(id);
-        if(!StringUtils.isBlank(updateUserRequest.getFullName())){
-            user.setFullName(updateUserRequest.getFullName());
-        }
-        if(!StringUtils.isBlank(updateUserRequest.getEmail())){
-            user.setEmail(updateUserRequest.getEmail());
-        }
-        if(updateUserRequest.getDob()!=null){
-            user.setDob(updateUserRequest.getDob());
-        }
-        if(!updateUserRequest.getPhoto().isEmpty() && updateUserRequest.getPhoto()!=null){
-            byte[] bytes=updateUserRequest.getPhoto().getBytes();
-            Blob blob=new SerialBlob(bytes);
-            user.setAvatar(blob);
-        }
+//        if(!StringUtils.isBlank(updateUserRequest.getFullName())){
+//            user.setFullName(updateUserRequest.getFullName());
+//        }
+//        if(!StringUtils.isBlank(updateUserRequest.getEmail())){
+//            user.setEmail(updateUserRequest.getEmail());
+//        }
+//        if(updateUserRequest.getDob()!=null){
+//            user.setDob(updateUserRequest.getDob());
+//        }
+//        if(!updateUserRequest.getPhoto().isEmpty() && updateUserRequest.getPhoto()!=null){
+//            byte[] bytes=updateUserRequest.getPhoto().getBytes();
+//            Blob blob=new SerialBlob(bytes);
+//            user.setAvatar(blob);
+//        }
         this.removeAllRoleFromUser(user.getId());
         List<Long> rolesId=updateUserRequest.getRolesId();
         if(rolesId!=null && !rolesId.isEmpty()){
