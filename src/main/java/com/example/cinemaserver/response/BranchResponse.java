@@ -16,5 +16,6 @@ public class BranchResponse {
     private Long numberOfTickets;
     private String photo;
     private Boolean status;
+    private int numberOfRooms;
     private AreaResponse areaResponse;
 }

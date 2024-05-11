@@ -134,6 +134,7 @@ public class BranchService implements IBranchService{
                                 , (long) tickets.size()
                                 ,getBranchPhoto(branch)
                                 ,branch.getStatus()
+                                , roomRepository.countRoomsByBranchId(branch.getId())
                                 ,areaResponse);
     }
 
@@ -150,6 +151,7 @@ public class BranchService implements IBranchService{
                 , (long) tickets.size()
                 ,null
                 ,branch.getStatus()
+                , roomRepository.countRoomsByBranchId(branch.getId())
                 ,areaResponse);
     }
 }

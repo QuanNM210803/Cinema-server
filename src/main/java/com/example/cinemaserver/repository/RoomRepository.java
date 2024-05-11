@@ -10,4 +10,6 @@ public interface RoomRepository extends JpaRepository<Room,Long> {
     @Query("SELECT r From Room r WHERE (r.branch.id=:branchId)")
     List<Room> findAllRoomsByBranchId(Long branchId);
 
+    @Query("SELECT count(r) From Room r WHERE (r.branch.id=:branchId)")
+    int countRoomsByBranchId(Long branchId);
 }
