@@ -30,6 +30,16 @@ public class BranchController {
         }
         return ResponseEntity.ok(branchResponses);
     }
+    @GetMapping("/all/nonePhoto")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<BranchResponse>> getAllBranchsNonePhoto() throws SQLException {
+        List<Branch> branches=branchService.getAll();
+        List<BranchResponse> branchResponses=new ArrayList<>();
+        for(Branch branch:branches){
+            branchResponses.add(branchService.getBranchResponseNonePhoto(branch));
+        }
+        return ResponseEntity.ok(branchResponses);
+    }
     @GetMapping("/all/{areaId}")
     public ResponseEntity<?> getBranchByAreaId(@PathVariable("areaId") Long areaId){
         try{

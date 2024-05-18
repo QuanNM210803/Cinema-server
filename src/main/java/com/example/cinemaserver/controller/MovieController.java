@@ -27,6 +27,16 @@ public class MovieController {
         List<Movie> movies=movieService.getAllMovies();
         return ResponseEntity.ok(getListMovieResponse(movies));
     }
+    @GetMapping("/all/nonePhoto")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<MovieResponse>> getAllMoviesNonePhoto() throws SQLException {
+        List<Movie> movies=movieService.getAllMovies();
+        List<MovieResponse> movieResponses=new ArrayList<>();
+        for(Movie movie:movies){
+            movieResponses.add(movieService.getMovieResponseNonePhoto(movie));
+        }
+        return ResponseEntity.ok(movieResponses);
+    }
     @GetMapping("/all/client")
     public ResponseEntity<?> getMoviesClient() throws SQLException {
         List<Movie> movies=movieService.getMoviesClient();
