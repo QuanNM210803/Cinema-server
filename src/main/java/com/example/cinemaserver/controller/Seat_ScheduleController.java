@@ -79,7 +79,7 @@ public class Seat_ScheduleController {
                 waitPayment.add(intArray[i]);
             }
             prevString = "waitPayment";
-            scheduler.schedule(task, 2, TimeUnit.MINUTES);
+            scheduler.schedule(task, 15, TimeUnit.MINUTES);
             return setToString();
         }
         if (lastFiveChars.equals("leave")) {
