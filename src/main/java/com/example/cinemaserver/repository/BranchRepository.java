@@ -16,6 +16,7 @@ public interface BranchRepository extends JpaRepository<Branch,Long> {
             "b.id IN (SELECT DISTINCT (s.room.branch.id) FROM Schedule s WHERE s.movie.id=:movieId AND s.room.status=true AND " +
             "((s.startDate>:date) OR (s.startDate=:date AND s.startTime>:time)))")
     List<Branch> findBranchClientByMovieIdAndAreaId(Long movieId, Long areaId, LocalDate date, LocalTime time);
+
     @Query("SELECT b FROM Branch b WHERE b.area.id=:areaId")
     List<Branch> findBranchByAreaId(Long areaId);
 }

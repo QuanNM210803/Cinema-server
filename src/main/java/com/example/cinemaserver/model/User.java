@@ -30,7 +30,7 @@ public class User {
     private Blob avatar;
     @Transient
     private Integer age;
-    @ManyToMany(fetch = FetchType.EAGER,cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.DETACH})
+    @ManyToMany(fetch = FetchType.EAGER,cascade = {CascadeType.MERGE,CascadeType.DETACH})
     @JoinTable(name="user_role",
         joinColumns = @JoinColumn(name = "Userid",referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "Roleid",referencedColumnName = "id")

@@ -36,6 +36,13 @@ public class BranchService implements IBranchService{
         return branchRepository.findAll();
     }
     @Override
+    public List<Branch> getBranchClientByMovieIdAndAreaId(Long movieId,Long areaId) {
+        areaService.getArea(areaId);
+        movieService.getMovie(movieId);
+        return branchRepository.findBranchClientByMovieIdAndAreaId(movieId,areaId, LocalDate.now(), LocalTime.now());
+    }
+
+    @Override
     public Branch getBranch(Long id) {
         return branchRepository.findById(id).orElseThrow(()->new FindException("Not found branch."));
     }
@@ -91,13 +98,6 @@ public class BranchService implements IBranchService{
         }else {
             throw new RuntimeException("Cannot set inactive status because showtime that haven't been broadcast yet exist.");
         }
-    }
-
-    @Override
-    public List<Branch> getBranchClientByMovieIdAndAreaId(Long movieId,Long areaId) {
-        areaService.getArea(areaId);
-        movieService.getMovie(movieId);
-        return branchRepository.findBranchClientByMovieIdAndAreaId(movieId,areaId, LocalDate.now(), LocalTime.now());
     }
 
     @Override

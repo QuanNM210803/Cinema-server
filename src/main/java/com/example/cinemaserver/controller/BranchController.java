@@ -30,6 +30,23 @@ public class BranchController {
         }
         return ResponseEntity.ok(branchResponses);
     }
+    // lay rap theo phim va khu vuc, dung cho qua trinh dat ve
+    @GetMapping("/all/client/movieAndArea/{movieId}/{areaId}")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
+    public ResponseEntity<?> getBranchClientByMovieIdAndAreaId(@PathVariable("movieId") Long movieId
+            ,@PathVariable("areaId") Long areaId){
+        try{
+            List<Branch> branches=branchService.getBranchClientByMovieIdAndAreaId(movieId,areaId);
+            List<BranchResponse> branchResponses=new ArrayList<>();
+            for(Branch branch:branches){
+                branchResponses.add(branchService.getBranchResponseNonePhoto(branch));
+            }
+            return ResponseEntity.ok(branchResponses);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
     @GetMapping("/all/nonePhoto")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<BranchResponse>> getAllBranchsNonePhoto() throws SQLException {
@@ -53,22 +70,7 @@ public class BranchController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
-    // lay rap theo phim va khu vuc, dung cho qua trinh dat ve
-    @GetMapping("/all/client/movieAndArea/{movieId}/{areaId}")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_USER')")
-    public ResponseEntity<?> getBranchClientByMovieIdAndAreaId(@PathVariable("movieId") Long movieId
-                                                        ,@PathVariable("areaId") Long areaId){
-        try{
-            List<Branch> branches=branchService.getBranchClientByMovieIdAndAreaId(movieId,areaId);
-            List<BranchResponse> branchResponses=new ArrayList<>();
-            for(Branch branch:branches){
-                branchResponses.add(branchService.getBranchResponseNonePhoto(branch));
-            }
-            return ResponseEntity.ok(branchResponses);
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
+
 
     @GetMapping("/{branchId}")
     public ResponseEntity<?> getBranch(@PathVariable("branchId") Long id){
