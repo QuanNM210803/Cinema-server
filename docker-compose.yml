@@ -1,0 +1,15 @@
+version: '3'
+services:
+  mysql:
+    container_name: mysql-test
+    image: mysql:8.0.36-debian
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: quancntt2003
+      MYSQL_DATABASE: cinemamanagement
+    volumes:
+      - mysql-data:/var/lib/mysql
+volumes:
+  mysql-data:
