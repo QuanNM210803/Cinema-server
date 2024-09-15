@@ -25,4 +25,4 @@ v1.2 3/8/2024 16:56 config docker:
     # Use app:  
         ~ Login account ADMIN with email: nnmhqn2003@gmail.com, password: 1  
 
-Node: jdbc:mysql://host.docker.internal:3306/cinemamanagement  
+Note: jdbc:mysql://host.docker.internal:3306/cinemamanagement  
